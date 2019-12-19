@@ -8,6 +8,7 @@
 #include <fstream>
 #include <regex>
 #include <cstdio>
+#include <boost/spirit/home/x3.hpp>
 
 XpaceLogFile::XpaceLogFile(std::string fileName)
     : fileName_(std::move(fileName))
@@ -116,4 +117,12 @@ bool XpaceLogFile::isXpaceLogFile()
         file.close();
     }
     return false;
+}
+
+// see https://www.boost.org/doc/libs/1_71_0/libs/spirit/doc/x3/html/spirit_x3/quick_reference/string.html
+void parseContent(){
+    using namespace boost::spirit::x3;
+    auto magicRule = "# libXPACE log file" >> eol;
+    auto initialPoseRule = char_('@') >> double_ >> double_ >> double_ >> char_('(') >> double_ >> double_ >> double_ >> char_(')') >> double_ >> eol;
+    auto motionRule = int_ >> int_ >> double_ >> double_ >> double_ >> char_('(') >> double_ >> double_ >> double_ >> char_(')') >> double_;
 }

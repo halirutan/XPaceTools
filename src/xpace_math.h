@@ -50,12 +50,9 @@ public:
         };
     }
 
-    Quaternion &conjugate()
+    Quaternion conjugate()const
     {
-        qi = -qi;
-        qj = -qj;
-        qk = -qk;
-        return *this;
+        return {qr, -qi, -qj, -qk};
     }
 
     bool isUnitQuaternion()
@@ -98,15 +95,6 @@ public:
 
 };
 
-/**
- * Calculates the conjugate of q and returns a new Quaternion
- * @param q Input quaternion
- * @return Conjugate of q
- */
-Quaternion conjugate(const Quaternion &q)
-{
-    return {q.qr, -q.qi, -q.qj, -q.qk};
-}
 
 /**
  * Rotates a vector v about the quaternion q
@@ -117,7 +105,7 @@ Quaternion conjugate(const Quaternion &q)
 Vector rotate(const Vector &v, const Quaternion q)
 {
     Quaternion qv{0.0, v.x, v.y, v.z};
-    Quaternion r = q * qv * conjugate(q);
+    Quaternion r = q * qv * q.conjugate();
     return {r.qi, r.qj, r.qk};
 }
 

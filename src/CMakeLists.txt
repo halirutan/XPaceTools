@@ -1,4 +1,6 @@
 project(XpaceToolsLibrary)
+find_package (Boost REQUIRED)
+include_directories (${Boost_INCLUDE_DIRS})
 
 set(HEADER_FILES
         xpace_math.h
