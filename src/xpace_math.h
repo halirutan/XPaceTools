@@ -1,12 +1,9 @@
-//
-// Created by Patrick Scheibe on 18.12.19.
-//
-
-#ifndef XPACETOOLS_QUATERNION_H
-#define XPACETOOLS_QUATERNION_H
+#ifndef XPACETOOLS_MATH_H
+#define XPACETOOLS_MATH_H
 
 #include <cmath>
 #include <initializer_list>
+#include "xpace_parser.h"
 
 namespace xpace
 {
@@ -95,6 +92,38 @@ public:
 
 };
 
+class InitialPosition {
+public:
+    Vector t;
+    Quaternion q;
+    InitialPosition();
+    InitialPosition(const parser::initial_pose_t &pose);
+};
+
+std::ostream& operator<<(std::ostream& os, const InitialPosition& p);
+
+class Motion {
+public:
+    Vector t;
+    Quaternion q;
+    int time;
+    int frame;
+    Motion();
+    Motion(const parser::motion_t &motion);
+    Motion(const Motion &) = default;
+
+    /**
+     *
+     * @param initialPose
+     * @return
+     */
+    Motion toAbsoluteCoordinates(const InitialPosition &initialPose);
+};
+
+std::ostream& operator<<(std::ostream& os, const Motion& p);
+
+
+
 
 /**
  * Rotates a vector v about the quaternion q
@@ -102,14 +131,10 @@ public:
  * @param q Quaternion defining the rotation
  * @return Rotated vector v
  */
-Vector rotate(const Vector &v, const Quaternion q)
-{
-    Quaternion qv{0.0, v.x, v.y, v.z};
-    Quaternion r = q * qv * q.conjugate();
-    return {r.qi, r.qj, r.qk};
-}
+Vector rotate(const Vector &v, const Quaternion &q);
 
-}
+} // namespace xpace
 
 
-#endif //XPACETOOLS_QUATERNION_H
+
+#endif //XPACETOOLS_MATH_H
