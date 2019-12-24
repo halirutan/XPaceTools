@@ -1,7 +1,3 @@
-//
-// Created by Patrick Scheibe on 18.12.19.
-//
-
 #include "xpace_log_file.h"
 #include "xpace_parser.h"
 
@@ -11,10 +7,11 @@
 #include <iostream>
 
 xpace::XpaceLogFile::XpaceLogFile(std::string fileName)
-    : fileName_(std::move(fileName)), initialPose_(), poses_()
+    : fileName_(std::move(fileName)), initialPose_(), motions_(), positions_()
 {
     if (isXpaceLogFile()) {
         parse();
+        calculateAbsolutePositions();
     }
     else {
         throw std::invalid_argument("File " + fileName_ + " is not a valid XPace logfile.");
@@ -32,7 +29,7 @@ void xpace::XpaceLogFile::parse()
     bool haveInitialPose = false;
     if (file.is_open()) {
         std::string line;
-        while(std::getline(file, line)) {
+        while (std::getline(file, line)) {
             if (!haveInitialPose) {
                 xpace::parser::initial_pose_t pose;
                 bool result = xpace::parser::parseInitialPose(line, pose);
@@ -46,7 +43,7 @@ void xpace::XpaceLogFile::parse()
             xpace::parser::motion_t motion;
             bool result = xpace::parser::parseMotion(line, motion);
             if (result) {
-                poses_.emplace_back(motion);
+                motions_.emplace_back(motion);
             }
 
         }
@@ -56,7 +53,7 @@ void xpace::XpaceLogFile::parse()
         throw std::runtime_error("Logfile cannot be opened. That should never happen.");
     }
 
-    if (!haveInitialPose || poses_.empty()) {
+    if (!haveInitialPose || motions_.empty()) {
         throw std::runtime_error("Could not create log-file object. Either no initial pose or no motions could be read.");
     }
 
@@ -84,12 +81,26 @@ bool xpace::XpaceLogFile::isXpaceLogFile()
     return false;
 }
 
-xpace::InitialPosition xpace::XpaceLogFile::getInitialPosition()
+xpace::InitialPosition xpace::XpaceLogFile::getInitialPosition() const
 {
     return initialPose_;
 }
 
-int xpace::XpaceLogFile::getNumberOfMotions()
+size_t xpace::XpaceLogFile::getNumberOfMotions() const
 {
-    return poses_.size();
+    return motions_.size();
+}
+void xpace::XpaceLogFile::calculateAbsolutePositions()
+{
+    for (auto p: motions_) {
+        positions_.emplace_back(p.toAbsoluteCoordinates(initialPose_));
+    }
+}
+std::vector<xpace::Motion> xpace::XpaceLogFile::getAbsolutePositions() const
+{
+    return positions_;
+}
+std::vector<xpace::Motion> xpace::XpaceLogFile::getRelativeMotions() const
+{
+    return motions_;
 }

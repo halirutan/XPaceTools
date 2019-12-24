@@ -1,5 +1,5 @@
 set (Boost_USE_STATIC_LIBS OFF)
-find_package (Boost REQUIRED COMPONENTS unit_test_framework filesystem)
+find_package (Boost 1.71 REQUIRED COMPONENTS unit_test_framework filesystem)
 include_directories (${Boost_INCLUDE_DIRS})
 
 add_executable(Test_run xpace_log_file_test.cpp)

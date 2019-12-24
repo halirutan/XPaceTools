@@ -92,6 +92,11 @@ public:
 
 };
 
+/**
+ * An "initial pose" consists of a translational part and a rotational part (represented as a quaternion).
+ * Based on this initial pose, all Motion records, which are relative movements, can be converted to absolute
+ * scanner coordinate.
+ */
 class InitialPosition {
 public:
     Vector t;
@@ -102,6 +107,10 @@ public:
 
 std::ostream& operator<<(std::ostream& os, const InitialPosition& p);
 
+/**
+ * A Motion is a relative motion of the subject with regards to the initial position during the scan. Using the
+ * initial position, an absolute position of each motion can be calculated.
+ */
 class Motion {
 public:
     Vector t;
@@ -113,7 +122,8 @@ public:
     Motion(const Motion &) = default;
 
     /**
-     *
+     * Uses an initial position as returned from the log file and converts this motion
+     * into a absolute scanner coordinates.
      * @param initialPose
      * @return
      */
@@ -121,9 +131,6 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const Motion& p);
-
-
-
 
 /**
  * Rotates a vector v about the quaternion q

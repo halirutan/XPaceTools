@@ -1,5 +1,5 @@
 project(XpaceToolsLibrary)
-find_package (Boost REQUIRED)
+find_package (Boost 1.71 REQUIRED)
 include_directories (${Boost_INCLUDE_DIRS})
 
 set(HEADER_FILES
@@ -9,4 +9,4 @@ set(HEADER_FILES
 
 set(SOURCE_FILES xpace_log_file.cpp xpace_parser.cpp xpace_math.cpp)
 
-add_library(libXPaceTools STATIC ${SOURCE_FILES} ${HEADER_FILES})
+add_library(libXPaceTools ${SOURCE_FILES} ${HEADER_FILES})

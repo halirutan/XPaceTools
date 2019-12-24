@@ -13,7 +13,9 @@ namespace xpace
 namespace parser
 {
 
-
+/**
+ * Internal struct that the parser can directly assign when reading the initial pose in the logfile
+ */
 struct initial_pose_t
 {
     double x = 0.0;
@@ -25,6 +27,9 @@ struct initial_pose_t
     double qr = 0.0;
 };
 
+/**
+ * Internal struct that the parser can directly assign when reading a motion line
+ */
 struct motion_t
 {
     int frame = 0;
@@ -38,10 +43,23 @@ struct motion_t
     double qr = 0.0;
 };
 
+/**
+ * Takes one input line and tries to parse a motion from it.
+ * @param input Input line from the log file
+ * @param out Motion that is filled when the parse is successful
+ * @return True if the line could be parsed as a motion
+ */
 bool parseMotion(const std::string &input, motion_t &out);
+
+/**
+ * Takes one input line and tries to parse an initial pose from it.
+ * @param input Input line from the log file
+ * @param out Initial pose that is filled when the parse is successful
+ * @return True if the line could be parsed as an initial pose
+ */
 bool parseInitialPose(const std::string &input, initial_pose_t &out);
 
-}
-}
+} // namespace parser
+} // namespace xpace
 
 #endif //XPACE_PARSER_H
