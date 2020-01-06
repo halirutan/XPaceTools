@@ -1,7 +1,3 @@
-//
-// Created by patrick on 19.12.19.
-//
-
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_MODULE XPace Library Test
