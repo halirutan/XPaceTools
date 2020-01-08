@@ -15,6 +15,7 @@ xpace::InitialPosition::InitialPosition(const xpace::parser::initial_pose_t &ini
 
 std::ostream &xpace::operator<<(std::ostream &os, const xpace::InitialPosition &p)
 {
+    os.precision(10);
     os << "Initial Pose trans(" << p.t.x << ", " << p.t.y << ", " << p.t.z << ") quat("
        << p.q.qr << ", " << p.q.qi << ", " << p.q.qj << ", " << p.q.qk << ")";
     return os;
@@ -39,14 +40,16 @@ xpace::Motion xpace::Motion::toAbsoluteCoordinates(const xpace::InitialPosition 
     auto t0 = initialPosition.t;
     auto q0 = initialPosition.q;
     auto result = Motion(*this);
-    result.t = xpace::rotate(t0, q) + t;
-    result.q = q * q0 * q.conjugate();
+    result.t = xpace::rotate(t0, q)+t;
+    result.q = q*q0;
     return result;
 }
 
 std::ostream &xpace::operator<<(std::ostream &os, const xpace::Motion &m)
 {
-    os << "Time:" << m.time << " Frame:" << m.frame << "trans(" << m.t.x << ", " << m.t.y << ", " << m.t.z << ") quat("
+    os.precision(10);
+    os << "Time: " << m.time << " Frame: " << m.frame << " trans(" << m.t.x << ", " << m.t.y << ", " << m.t.z
+       << ") quat("
        << m.q.qr << ", " << m.q.qi << ", " << m.q.qj << ", " << m.q.qk << ")";
     return os;
 }
