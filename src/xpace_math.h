@@ -5,11 +5,9 @@
 #include <initializer_list>
 #include "xpace_parser.h"
 
-namespace xpace
-{
+namespace xpace {
 
-class Quaternion
-{
+class Quaternion {
 public:
     double qr;
     double qi;
@@ -17,16 +15,14 @@ public:
     double qk;
 
     Quaternion()
-        : qr(0.0), qi(0.0), qj(0.0), qk(0.0)
-    {};
+            :qr(0.0), qi(0.0), qj(0.0), qk(0.0) { };
 
     Quaternion(double qr_, double qi_, double qj_, double qk_)
-        : qr(qr_), qi(qi_), qj(qj_), qk(qk_)
-    {};
+            :qr(qr_), qi(qi_), qj(qj_), qk(qk_) { };
 
-    Quaternion(const Quaternion &q) = default;
+    Quaternion(const Quaternion& q) = default;
 
-    Quaternion &operator=(const Quaternion &q) = default;
+    Quaternion& operator=(const Quaternion& q) = default;
 
     /**
      * @brief Quaternion multiplication from the right.
@@ -37,57 +33,64 @@ public:
      * is NOT equal to q2*q1. This function multiplies q from the right to the
      * instance.
      */
-    Quaternion operator*(const Quaternion &q) const
+    Quaternion operator*(const Quaternion& q) const
     {
         return {
-            -qi * q.qi - qj * q.qj - qk * q.qk + q.qr * qr,
-            -qk * q.qj + qj * q.qk + qi * q.qr + q.qi * qr,
-            qk * q.qi - qi * q.qk + qj * q.qr + q.qj * qr,
-            -qj * q.qi + qi * q.qj + qk * q.qr + q.qk * qr
+                -qi*q.qi-qj*q.qj-qk*q.qk+q.qr*qr,
+                -qk*q.qj+qj*q.qk+qi*q.qr+q.qi*qr,
+                qk*q.qi-qi*q.qk+qj*q.qr+q.qj*qr,
+                -qj*q.qi+qi*q.qj+qk*q.qr+q.qk*qr
         };
     }
 
-    Quaternion conjugate()const
+    Quaternion conjugate() const
     {
         return {qr, -qi, -qj, -qk};
     }
 
     bool isUnitQuaternion()
     {
-        return fabs(norm() - 1.0) < eps;
+        return fabs(norm()-1.0)<eps;
     }
 
     double norm()
     {
-        return qr * qr + qi * qi + qj * qj + qk * qk;
+        return qr*qr+qi*qi+qj*qj+qk*qk;
     }
 
 private:
     static constexpr double eps = 1.0e-5;
 };
 
-class Vector
-{
+class Vector {
 public:
     double x;
     double y;
     double z;
 
     Vector()
-        : x(0.0), y(0.0), z(0.0)
-    {};
+            :x(0.0), y(0.0), z(0.0) { };
 
     Vector(double x_, double y_, double z_)
-        : x(x_), y(y_), z(z_)
-    {};
+            :x(x_), y(y_), z(z_) { };
 
-    Vector(const Vector &v) = default;
+    Vector(const Vector& v) = default;
 
-    Vector &operator=(const Vector &v) = default;
+    Vector& operator=(const Vector& v) = default;
 
-    Vector operator+(const Vector &v)
+    Vector operator+(const Vector& v)
     {
-        return {x + v.x, y + v.y, z + v.z};
+        return {x+v.x, y+v.y, z+v.z};
+    }
+
+    Vector operator-(const Vector& v)
+    {
+        return {x-v.x, y-v.y, z-v.z};
+    }
+
+    Vector abs()
+    {
+        return {std::abs(x), std::abs(y), std::abs(z)};
     }
 
 };
@@ -102,7 +105,7 @@ public:
     Vector t;
     Quaternion q;
     InitialPosition();
-    InitialPosition(const parser::initial_pose_t &pose);
+    InitialPosition(const parser::initial_pose_t& pose);
 };
 
 std::ostream& operator<<(std::ostream& os, const InitialPosition& p);
@@ -118,8 +121,8 @@ public:
     int time;
     int frame;
     Motion();
-    Motion(const parser::motion_t &motion);
-    Motion(const Motion &) = default;
+    Motion(const parser::motion_t& motion);
+    Motion(const Motion&) = default;
 
     /**
      * Uses an initial position as returned from the log file and converts this motion
@@ -127,7 +130,9 @@ public:
      * @param initialPose
      * @return
      */
-    Motion toAbsoluteCoordinates(const InitialPosition &initialPose);
+    Motion toAbsoluteCoordinates(const InitialPosition& initialPose);
+
+    Motion toCoordinateDifferences(const InitialPosition& initialPose);
 };
 
 std::ostream& operator<<(std::ostream& os, const Motion& p);
@@ -138,7 +143,7 @@ std::ostream& operator<<(std::ostream& os, const Motion& p);
  * @param q Quaternion defining the rotation
  * @return Rotated vector v
  */
-Vector rotate(const Vector &v, const Quaternion &q);
+Vector rotate(const Vector& v, const Quaternion& q);
 
 } // namespace xpace
 

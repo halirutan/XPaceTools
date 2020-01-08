@@ -35,7 +35,7 @@ xpace::Motion::Motion(const xpace::parser::motion_t &motion)
     q = {motion.qr, motion.qi, motion.qj, motion.qk};
 }
 
-xpace::Motion xpace::Motion::toAbsoluteCoordinates(const xpace::InitialPosition &initialPosition)
+xpace::Motion xpace::Motion::toAbsoluteCoordinates(const xpace::InitialPosition& initialPosition)
 {
     auto t0 = initialPosition.t;
     auto q0 = initialPosition.q;
@@ -45,7 +45,15 @@ xpace::Motion xpace::Motion::toAbsoluteCoordinates(const xpace::InitialPosition 
     return result;
 }
 
-std::ostream &xpace::operator<<(std::ostream &os, const xpace::Motion &m)
+xpace::Motion xpace::Motion::toCoordinateDifferences(const InitialPosition& initialPose)
+{
+    auto moved = this->toAbsoluteCoordinates(initialPose);
+    moved.t = moved.t-initialPose.t;
+    moved.q = moved.q*initialPose.q.conjugate();
+    return moved;
+}
+
+std::ostream& xpace::operator<<(std::ostream& os, const xpace::Motion& m)
 {
     os.precision(10);
     os << "Time: " << m.time << " Frame: " << m.frame << " trans(" << m.t.x << ", " << m.t.y << ", " << m.t.z
