@@ -2,18 +2,18 @@
 #include <iostream>
 
 xpace::InitialPosition::InitialPosition()
-    : q(), t()
+        :q(), t()
 {
 
 }
 
-xpace::InitialPosition::InitialPosition(const xpace::parser::initial_pose_t &initialPose)
+xpace::InitialPosition::InitialPosition(const xpace::parser::initial_pose_t& initialPose)
 {
     t = {initialPose.x, initialPose.y, initialPose.z,};
     q = {initialPose.qr, initialPose.qi, initialPose.qj, initialPose.qk};
 }
 
-std::ostream &xpace::operator<<(std::ostream &os, const xpace::InitialPosition &p)
+std::ostream& xpace::operator<<(std::ostream& os, const xpace::InitialPosition& p)
 {
     os.precision(10);
     os << "Initial Pose trans(" << p.t.x << ", " << p.t.y << ", " << p.t.z << ") quat("
@@ -22,12 +22,12 @@ std::ostream &xpace::operator<<(std::ostream &os, const xpace::InitialPosition &
 }
 
 xpace::Motion::Motion()
-    : q(), t(), time(), frame()
+        :q(), t(), time(), frame()
 {
 
 }
 
-xpace::Motion::Motion(const xpace::parser::motion_t &motion)
+xpace::Motion::Motion(const xpace::parser::motion_t& motion)
 {
     time = motion.time;
     frame = motion.frame;
@@ -35,7 +35,7 @@ xpace::Motion::Motion(const xpace::parser::motion_t &motion)
     q = {motion.qr, motion.qi, motion.qj, motion.qk};
 }
 
-xpace::Motion xpace::Motion::toAbsoluteCoordinates(const xpace::InitialPosition& initialPosition)
+xpace::Motion xpace::Motion::toAbsoluteCoordinates(const xpace::InitialPosition& initialPosition) const
 {
     auto t0 = initialPosition.t;
     auto q0 = initialPosition.q;
@@ -45,13 +45,6 @@ xpace::Motion xpace::Motion::toAbsoluteCoordinates(const xpace::InitialPosition&
     return result;
 }
 
-xpace::Motion xpace::Motion::toCoordinateDifferences(const InitialPosition& initialPose)
-{
-    auto moved = this->toAbsoluteCoordinates(initialPose);
-    moved.t = moved.t-initialPose.t;
-    moved.q = moved.q*initialPose.q.conjugate();
-    return moved;
-}
 
 std::ostream& xpace::operator<<(std::ostream& os, const xpace::Motion& m)
 {
@@ -62,9 +55,9 @@ std::ostream& xpace::operator<<(std::ostream& os, const xpace::Motion& m)
     return os;
 }
 
-xpace::Vector xpace::rotate(const xpace::Vector &v, const xpace::Quaternion &q)
+xpace::Vector xpace::rotate(const xpace::Vector& v, const xpace::Quaternion& q)
 {
     xpace::Quaternion qv{0.0, v.x, v.y, v.z};
-    xpace::Quaternion r = q * qv * q.conjugate();
+    xpace::Quaternion r = q*qv*q.conjugate();
     return {r.qi, r.qj, r.qk};
 }

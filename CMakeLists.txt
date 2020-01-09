@@ -15,12 +15,15 @@ find_package(Boost ${BOOST_VERSION}
 set(XPACE_HEADERS
         ${CMAKE_SOURCE_DIR}/src/xpace_math.h
         ${CMAKE_SOURCE_DIR}/src/xpace_log_file.h
-        ${CMAKE_SOURCE_DIR}/src/xpace_parser.h)
+        ${CMAKE_SOURCE_DIR}/src/xpace_parser.h
+        ${CMAKE_SOURCE_DIR}/src/xpace_statistic.h
+        )
 
 set(XPACE_SOURCES
         ${CMAKE_SOURCE_DIR}/src/xpace_log_file.cpp
         ${CMAKE_SOURCE_DIR}/src/xpace_parser.cpp
-        ${CMAKE_SOURCE_DIR}/src/xpace_math.cpp)
+        ${CMAKE_SOURCE_DIR}/src/xpace_math.cpp
+        ${CMAKE_SOURCE_DIR}/src/xpace_statistic.cpp)
 
 
 # XPace library for loading and working with log-files

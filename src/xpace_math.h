@@ -88,6 +88,11 @@ public:
         return {x-v.x, y-v.y, z-v.z};
     }
 
+    Vector operator-()
+    {
+        return {-x, -y, -z};
+    }
+
     Vector abs()
     {
         return {std::abs(x), std::abs(y), std::abs(z)};
@@ -130,9 +135,7 @@ public:
      * @param initialPose
      * @return
      */
-    Motion toAbsoluteCoordinates(const InitialPosition& initialPose);
-
-    Motion toCoordinateDifferences(const InitialPosition& initialPose);
+    Motion toAbsoluteCoordinates(const InitialPosition& initialPose) const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Motion& p);
