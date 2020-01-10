@@ -45,7 +45,6 @@ xpace::Motion xpace::Motion::toAbsoluteCoordinates(const xpace::InitialPosition&
     return result;
 }
 
-
 std::ostream& xpace::operator<<(std::ostream& os, const xpace::Motion& m)
 {
     os.precision(10);

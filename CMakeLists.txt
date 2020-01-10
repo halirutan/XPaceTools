@@ -3,7 +3,7 @@ project(XPaceTools
         VERSION 1.0
         DESCRIPTION "Parsing library for XPace log-files"
         HOMEPAGE_URL "https://github.com/halirutan/XPaceTools"
-        LANGUAGES C CXX)
+        LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -27,16 +27,19 @@ set(XPACE_SOURCES
 
 
 # XPace library for loading and working with log-files
-add_library(libXPaceTools SHARED)
-target_sources(libXPaceTools
+add_library(xpaceTools SHARED)
+target_sources(xpaceTools
         PRIVATE
         ${XPACE_SOURCES}
         ${XPACE_HEADERS}
         )
-target_include_directories(libXPaceTools
+target_include_directories(xpaceTools
         PRIVATE
         ${Boost_INCLUDE_DIRS}
         )
+#target_link_libraries(xpaceTools
+#        OpenMP::OpenMP_CXX
+#        )
 
 # Unit tests
 add_executable(xpaceTests)
@@ -45,7 +48,7 @@ target_sources(xpaceTests
         ${CMAKE_SOURCE_DIR}/tests/xpace_log_file_test.cpp)
 target_link_libraries(xpaceTests
         PRIVATE
-        libXPaceTools
+        xpaceTools
         ${Boost_LIBRARIES}
         )
 target_include_directories(xpaceTests
@@ -72,5 +75,6 @@ target_include_directories(xpaceStatistics
 )
 target_link_libraries(xpaceStatistics
         PRIVATE
+        xpaceTools
         ${Boost_LIBRARIES}
         )

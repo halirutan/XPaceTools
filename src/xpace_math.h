@@ -126,7 +126,7 @@ public:
     int time;
     int frame;
     Motion();
-    Motion(const parser::motion_t& motion);
+    explicit Motion(const parser::motion_t& motion);
     Motion(const Motion&) = default;
 
     /**
