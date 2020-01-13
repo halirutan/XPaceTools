@@ -123,8 +123,8 @@ class Motion {
 public:
     Vector t;
     Quaternion q;
-    int time;
-    int frame;
+    unsigned int time;
+    unsigned int frame;
     Motion();
     explicit Motion(const parser::motion_t& motion);
     Motion(const Motion&) = default;

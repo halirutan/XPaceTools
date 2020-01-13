@@ -104,3 +104,7 @@ std::vector<xpace::Motion> xpace::XpaceLogFile::getRelativeMotions() const
 {
     return motions_;
 }
+std::string xpace::XpaceLogFile::getFilename()
+{
+    return fileName_;
+}

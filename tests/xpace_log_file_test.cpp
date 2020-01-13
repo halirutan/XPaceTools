@@ -42,6 +42,16 @@ BOOST_AUTO_TEST_CASE(ParseFile)
     std::cout << "Number of motions: " << logFile.getNumberOfMotions() << std::endl;
 }
 
+BOOST_AUTO_TEST_CASE(WeirdLine)
+{
+    // The weird thing was that I did not realize that the time and frame values might not fit into an int.
+    // They are unsigned ints now.
+    std::string line = "200341 2687970876 0.02327 0.045986 0.067551 ( 3.85996755e-05 -2.06852255e-05 -1.25979786e-05 ) -1 + 0 0 *\r";
+    xpace::parser::motion_t motion;
+    bool result = xpace::parser::parseMotion(line, motion);
+    BOOST_CHECK(result);
+}
+
 BOOST_AUTO_TEST_CASE(ApplyTransform)
 {
     // Test case file xpace_603.log

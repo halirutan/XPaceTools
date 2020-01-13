@@ -3,6 +3,8 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <string>
+#include <fstream>
+#include "nlohmann/json.hpp"
 #include "xpace_log_file.h"
 #include "xpace_statistic.h"
 
@@ -12,6 +14,18 @@ void printDescription()
             << "xpaceStatistics calculates various statistical properties of log-files acquired during motion tracking."
             << std::endl;
     std::cout << std::endl << "Usage: xpaceStatistics [opts] xpace_XXX.log [more log-files]" << std::endl;
+}
+
+nlohmann::json createJSON(xpace::XPaceStatistic& statistic)
+{
+    using Key = xpace::XPaceStatistic::StatKey;
+    nlohmann::json o;
+    o["MeanEuclideanDistance"] = statistic[Key::MeanDistance];
+    o["MinEuclideanDistance"] = statistic[Key::MinDistance];
+    o["MaxEuclideanDistance"] = statistic[Key::MaxDistance];
+    o["EuclideanDistanceStdDev"] = statistic[Key::StandardDeviation];
+    o["WeightedMeanEuclideanDistance"] = statistic[Key::WeightedMeanDistance];
+    return o;
 }
 
 int main(int argc, char** argv)
@@ -49,21 +63,15 @@ int main(int argc, char** argv)
         po::notify(vm);
 
         if (vm.count("input")) {
+            nlohmann::json result;
             for (const auto& f: inputFiles) {
                 using Key = xpace::XPaceStatistic::StatKey;
                 xpace::XpaceLogFile logFile(f);
                 xpace::XPaceStatistic statistic(logFile);
-                std::cout << "Processing file: " << f << std::endl;
-                std::cout << "Mean Euclidean Distance: " << statistic[Key::MeanDistance] << std::endl;
-                std::cout << "Min Euclidean Distance: " << statistic[Key::MinDistance] << std::endl;
-                std::cout << "Max Euclidean Distance: " << statistic[Key::MaxDistance] << std::endl;
-                std::cout << "Standard Deviation of Euclidean Distance: " << statistic[Key::StandardDeviation]
-                          << std::endl;
+                result[f] = createJSON(statistic);
             }
+            std::cout << std::setw(4) << result << std::endl << std::endl;
             return SUCCESS;
-        }
-        else {
-
         }
     }
     catch (po::required_option& e) {
@@ -73,6 +81,9 @@ int main(int argc, char** argv)
     catch (po::unknown_option& e) {
         std::cerr << programName << ": illegal option " << e.get_option_name() << std::endl;
         return ERROR;
+    }
+    catch (std::runtime_error& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
     }
     return SUCCESS;
 }

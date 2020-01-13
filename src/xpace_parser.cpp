@@ -14,8 +14,8 @@ BOOST_FUSION_ADAPT_STRUCT(xpace::parser::initial_pose_t,
                           (double, qr))
 
 BOOST_FUSION_ADAPT_STRUCT(xpace::parser::motion_t,
-                          (int, frame),
-                          (int, time),
+                          (unsigned int, frame),
+                          (unsigned int, time),
                           (double, x),
                           (double, y),
                           (double, z),
@@ -69,13 +69,15 @@ struct motion_parser: qi::grammar<Iterator, motion_t(), ascii::space_type>
         using ascii::char_;
         using qi::double_;
         using qi::int_;
+        using qi::uint_;
+        using qi::long_;
         using qi::repeat;
         using qi::eol;
         using qi::omit;
 
         start %=
-                int_
-                >> int_
+                uint_
+                >> uint_
                 >> double_
                 >> double_
                 >> double_

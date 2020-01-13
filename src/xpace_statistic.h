@@ -22,7 +22,8 @@ public:
       MeanDistance,
       MinDistance,
       MaxDistance,
-      StandardDeviation
+      StandardDeviation,
+      WeightedMeanDistance
     };
 
     /*
@@ -30,11 +31,14 @@ public:
      */
     double operator[](StatKey key)
     {
-        if (positionStats_.count(key)==1) {
-            return positionStats_[key];
+        if (positionStats_.count(key)!=1) {
+            throw std::runtime_error(
+                    "XPaceStatistic: Value for key is not available or appears several times. This should not happen.");
         }
-        throw std::runtime_error("XPaceStatistic: Value for key is not available.");
+        return positionStats_[key];
     }
+
+    std::string getLogFilename();
 
 private:
     XpaceLogFile file_;
@@ -47,7 +51,7 @@ private:
     Vector meanPosition_;
     std::map<StatKey, double> positionStats_;
 
-    void calcAbsPositionStatistic();
+    void calculateStatistics();
 };
 
 } // end namespace xpace

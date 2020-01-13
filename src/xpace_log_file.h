@@ -18,6 +18,7 @@ class XpaceLogFile
 {
 public:
     explicit XpaceLogFile(std::string fileName);
+    std::string getFilename();
     InitialPosition getInitialPosition() const;
 
     /**

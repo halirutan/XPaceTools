@@ -12,6 +12,9 @@ find_package(Boost ${BOOST_VERSION}
         MODULE
         REQUIRED COMPONENTS unit_test_framework filesystem program_options log)
 
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(external/json)
+
 set(XPACE_HEADERS
         ${CMAKE_SOURCE_DIR}/src/xpace_math.h
         ${CMAKE_SOURCE_DIR}/src/xpace_log_file.h
@@ -37,9 +40,6 @@ target_include_directories(xpaceTools
         PRIVATE
         ${Boost_INCLUDE_DIRS}
         )
-#target_link_libraries(xpaceTools
-#        OpenMP::OpenMP_CXX
-#        )
 
 # Unit tests
 add_executable(xpaceTests)
@@ -76,5 +76,6 @@ target_include_directories(xpaceStatistics
 target_link_libraries(xpaceStatistics
         PRIVATE
         xpaceTools
+        nlohmann_json::nlohmann_json
         ${Boost_LIBRARIES}
         )
