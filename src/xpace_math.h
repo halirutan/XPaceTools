@@ -111,10 +111,9 @@ public:
     InitialPosition(const InitialPosition& other);
     explicit InitialPosition(const parser::initial_pose_t& pose);
     InitialPosition& operator=(const parser::initial_pose_t& pose);
-
+	friend std::ostream& operator<<(std::ostream& os, const InitialPosition& p);
 };
 
-std::ostream& operator<<(std::ostream& os, const InitialPosition& p);
 
 /**
  * A Motion is a relative motion of the subject with regards to the initial position during the scan. Using the
@@ -137,9 +136,9 @@ public:
      * @return
      */
     [[nodiscard]] Motion toAbsoluteCoordinates(const InitialPosition& initialPose) const;
+	friend std::ostream& operator<<(std::ostream& os, const Motion& p);
 };
 
-std::ostream& operator<<(std::ostream& os, const Motion& p);
 
 /**
  * Rotates a vector v about the quaternion q
