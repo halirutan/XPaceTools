@@ -25,9 +25,7 @@ BOOST_FUSION_ADAPT_STRUCT(xpace::parser::motion_t,
                           (double, qr))
 
 
-namespace xpace
-{
-namespace parser
+namespace xpace::parser
 {
 
 namespace qi = boost::spirit::qi;
@@ -119,6 +117,5 @@ bool parseMotion(const std::string &input, motion_t &out) {
     std::string::const_iterator end = input.end();
     bool result = phrase_parse(iter, end, myParser, space, out);
     return result && (iter == end);
-}
 }
 }

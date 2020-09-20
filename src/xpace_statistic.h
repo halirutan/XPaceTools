@@ -2,8 +2,7 @@
 // Created by Patrick Scheibe on 09.01.20.
 //
 
-#ifndef XPACETOOLS_XPACE_STATISTIC_H
-#define XPACETOOLS_XPACE_STATISTIC_H
+#pragma once
 
 #include <vector>
 #include <map>
@@ -54,6 +53,4 @@ private:
     void calculateStatistics();
 };
 
-} // end namespace xpace
-
-#endif //XPACETOOLS_XPACE_STATISTIC_H
+}

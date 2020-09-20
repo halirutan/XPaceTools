@@ -1,6 +1,4 @@
-#ifndef XPACETOOLS_MATH_H
-#define XPACETOOLS_MATH_H
-
+#pragma once
 #include <cmath>
 #include <initializer_list>
 #include "xpace_parser.h"
@@ -43,17 +41,17 @@ public:
         };
     }
 
-    Quaternion conjugate() const
+    [[nodiscard]] Quaternion conjugate() const
     {
         return {qr, -qi, -qj, -qk};
     }
 
-    bool isUnitQuaternion()
+    [[nodiscard]] bool isUnitQuaternion() const
     {
         return fabs(norm()-1.0)<eps;
     }
 
-    double norm()
+    [[nodiscard]] double norm() const
     {
         return qr*qr+qi*qi+qj*qj+qk*qk;
     }
@@ -78,22 +76,22 @@ public:
 
     Vector& operator=(const Vector& v) = default;
 
-    Vector operator+(const Vector& v)
+    Vector operator+(const Vector& v) const
     {
         return {x+v.x, y+v.y, z+v.z};
     }
 
-    Vector operator-(const Vector& v)
+    Vector operator-(const Vector& v) const
     {
         return {x-v.x, y-v.y, z-v.z};
     }
 
-    Vector operator-()
+    Vector operator-() const
     {
         return {-x, -y, -z};
     }
 
-    Vector abs()
+    [[nodiscard]] Vector abs() const
     {
         return {std::abs(x), std::abs(y), std::abs(z)};
     }
@@ -110,7 +108,10 @@ public:
     Vector t;
     Quaternion q;
     InitialPosition();
-    InitialPosition(const parser::initial_pose_t& pose);
+    InitialPosition(const InitialPosition& other);
+    explicit InitialPosition(const parser::initial_pose_t& pose);
+    InitialPosition& operator=(const parser::initial_pose_t& pose);
+
 };
 
 std::ostream& operator<<(std::ostream& os, const InitialPosition& p);
@@ -135,7 +136,7 @@ public:
      * @param initialPose
      * @return
      */
-    Motion toAbsoluteCoordinates(const InitialPosition& initialPose) const;
+    [[nodiscard]] Motion toAbsoluteCoordinates(const InitialPosition& initialPose) const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Motion& p);
@@ -148,8 +149,4 @@ std::ostream& operator<<(std::ostream& os, const Motion& p);
  */
 Vector rotate(const Vector& v, const Quaternion& q);
 
-} // namespace xpace
-
-
-
-#endif //XPACETOOLS_MATH_H
+}

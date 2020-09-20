@@ -13,6 +13,15 @@ xpace::InitialPosition::InitialPosition(const xpace::parser::initial_pose_t& ini
     q = {initialPose.qr, initialPose.qi, initialPose.qj, initialPose.qk};
 }
 
+xpace::InitialPosition& xpace::InitialPosition::operator=(const xpace::parser::initial_pose_t& initialPose)
+{
+	t = {initialPose.x, initialPose.y, initialPose.z,};
+	q = {initialPose.qr, initialPose.qi, initialPose.qj, initialPose.qk};
+	return *this;
+}
+
+xpace::InitialPosition::InitialPosition(const xpace::InitialPosition &other) = default;
+
 std::ostream& xpace::operator<<(std::ostream& os, const xpace::InitialPosition& p)
 {
     os.precision(10);

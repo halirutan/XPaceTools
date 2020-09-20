@@ -5,15 +5,20 @@ project(XPaceTools
         HOMEPAGE_URL "https://github.com/halirutan/XPaceTools"
         LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 set(BOOST_VERSION 1.71)
 find_package(Boost ${BOOST_VERSION}
         MODULE
         REQUIRED COMPONENTS unit_test_framework filesystem program_options log)
 
-set(JSON_BuildTests OFF CACHE INTERNAL "")
-add_subdirectory(external/json)
+include(FetchContent)
+FetchContent_Declare(
+        json
+        GIT_REPOSITORY https://github.com/nlohmann/json.git
+        GIT_TAG v3.9.1
+)
+FetchContent_MakeAvailable(json)
 
 set(XPACE_HEADERS
         ${CMAKE_SOURCE_DIR}/src/xpace_math.h

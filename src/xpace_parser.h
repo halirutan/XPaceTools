@@ -1,6 +1,4 @@
-#ifndef XPACE_PARSER_H
-#define XPACE_PARSER_H
-
+#pragma once
 #include <string>
 
 /**
@@ -8,8 +6,7 @@
  * and yes, this is fucked up, but the spirit parser needs (?) values laid out in a
  * flat structure in order to parse into it.
  */
-namespace xpace {
-namespace parser {
+namespace xpace::parser {
 
 /**
  * Internal struct that the parser can directly assign when reading the initial pose in the logfile
@@ -55,7 +52,4 @@ bool parseMotion(const std::string& input, motion_t& out);
  */
 bool parseInitialPose(const std::string& input, initial_pose_t& out);
 
-} // namespace parser
-} // namespace xpace
-
-#endif //XPACE_PARSER_H
+}

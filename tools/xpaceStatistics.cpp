@@ -2,8 +2,8 @@
 
 #include <boost/program_options.hpp>
 #include <iostream>
+#include <iomanip>
 #include <string>
-#include <fstream>
 #include "nlohmann/json.hpp"
 #include "xpace_log_file.h"
 #include "xpace_statistic.h"
