@@ -8,6 +8,9 @@ project(XPaceTools
 set(CMAKE_CXX_STANDARD 17)
 
 set(BOOST_VERSION 1.71)
+set(Boost_USE_STATIC_LIBS        ON)
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME     ON)
 find_package(Boost ${BOOST_VERSION}
         MODULE
         REQUIRED COMPONENTS unit_test_framework filesystem program_options log)
@@ -38,7 +41,7 @@ set(XPACE_SOURCES
 
 
 # XPace library for loading and working with log-files
-add_library(xpaceTools SHARED)
+add_library(xpaceTools STATIC)
 target_sources(xpaceTools
         PRIVATE
         ${XPACE_SOURCES}
@@ -57,6 +60,7 @@ target_sources(xpaceTests
 target_link_libraries(xpaceTests
         PRIVATE
         xpaceTools
+        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
         nlohmann_json::nlohmann_json
         ${Boost_LIBRARIES}
         )
@@ -85,6 +89,7 @@ target_include_directories(xpaceStatistics
 target_link_libraries(xpaceStatistics
         PRIVATE
         xpaceTools
+        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
         nlohmann_json::nlohmann_json
         ${Boost_LIBRARIES}
         )
