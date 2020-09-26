@@ -11,46 +11,88 @@
 #include "xpace_log_file.h"
 #include "xpace_math.h"
 
-namespace xpace {
+namespace xpace
+{
 
-class XPaceStatistic {
+class XPaceStatistic
+{
 public:
-    explicit XPaceStatistic(const XpaceLogFile& file);
+	explicit XPaceStatistic(const XpaceLogFile &file);
 
-    enum StatKey {
-      MeanDistance,
-      MinDistance,
-      MaxDistance,
-      StandardDeviation,
-      WeightedMeanDistance
-    };
+	enum StatKey
+	{
+		NetMotion,
+		NetMotionEuclideanDistance,
+		MeanDistance,
+		MinDistance,
+		MaxDistance,
+		StandardDeviation,
+		WeightedMeanDistance,
+		IntegratedSpeed,
+		PartitionWeightedIntegratedSpeed
+	};
 
-    /*
-     * Retrieves one of the statistical measures calculated for the log-file
-     */
-    double operator[](StatKey key)
-    {
-        if (positionStats_.count(key)!=1) {
-            throw std::runtime_error(
-                    "XPaceStatistic: Value for key is not available or appears several times. This should not happen.");
-        }
-        return positionStats_[key];
-    }
+	/*
+	 * Retrieves one of the statistical measures calculated for the log-file
+	 */
+	double operator[](StatKey key)
+	{
+		if (stats_.count(key) != 1) {
+			throw std::runtime_error(
+				"XPaceStatistic: Value for key is not available or appears several times. This should not happen.");
+		}
+		return stats_[key];
+	}
 
-    std::string getLogFilename();
+	[[nodiscard]] const std::vector<double> &getSpeed() const
+	{
+		return speed_;
+	}
+
+	[[nodiscard]] std::vector<std::vector<double>> getTranslations() const
+	{
+		std::vector<std::vector<double>> result{relativePositions_.size()};
+		std::transform(relativePositions_.begin(), relativePositions_.end(), result.begin(),
+					   [](const Vector &v)
+					   {
+						   std::vector<double> res{v.x, v.y, v.z};
+						   return res;
+					   }
+		);
+		return result;
+	};
+
+	[[nodiscard]] std::vector<std::vector<double>> getRotations() const
+	{
+		std::vector<std::vector<double>> result{file_.getNumberOfMotions()};
+		auto motions = file_.getRelativeMotions();
+		std::transform(motions.begin(), motions.end(), result.begin(),
+					   [](const Motion &m)
+					   {
+							std::vector<double> res{m.q.qi, m.q.qj, m.q.qk};
+							return res;
+					   }
+		);
+		return result;
+	}
+
+	std::string getLogFilename();
 
 private:
-    XpaceLogFile file_;
-    InitialPosition initialPose_;
+	XpaceLogFile file_;
+	InitialPosition initialPose_;
 
-    // This will be calculated by taking the initial pose and apply a tracked motion to it (this incorporates the
-    // rotation *and* the translation. After that, we subtract the initial pose's shift again. Note that this is not
-    // equivalent to simply using the shift of the tracked motion!
-    std::vector<Vector> relativePositions_;
-    Vector meanPosition_;
-    std::map<StatKey, double> positionStats_;
+	// This will be calculated by taking the initial pose and apply a tracked motion to it (this incorporates the
+	// rotation *and* the translation. After that, we subtract the initial pose's shift again. Note that this is not
+	// equivalent to simply using the shift of the tracked motion!
+	std::vector<Vector> relativePositions_;
+	Vector meanPosition_;
+	std::map<StatKey, double> stats_;
+	Motion lastMotion_;
+	std::vector<double> rmsMotions_;
+	std::vector<double> speed_;
 
-    void calculateStatistics();
+	void calculateStatistics();
 };
 
 }

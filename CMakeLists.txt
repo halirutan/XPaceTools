@@ -13,12 +13,15 @@ find_package(Boost ${BOOST_VERSION}
         REQUIRED COMPONENTS unit_test_framework filesystem program_options log)
 
 include(FetchContent)
-FetchContent_Declare(
-        json
+FetchContent_Declare(json
         GIT_REPOSITORY https://github.com/nlohmann/json.git
-        GIT_TAG v3.9.1
-)
-FetchContent_MakeAvailable(json)
+        GIT_TAG v3.9.1)
+
+FetchContent_GetProperties(json)
+if(NOT json_POPULATED)
+    FetchContent_Populate(json)
+    add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
 
 set(XPACE_HEADERS
         ${CMAKE_SOURCE_DIR}/src/xpace_math.h
@@ -54,6 +57,7 @@ target_sources(xpaceTests
 target_link_libraries(xpaceTests
         PRIVATE
         xpaceTools
+        nlohmann_json::nlohmann_json
         ${Boost_LIBRARIES}
         )
 target_include_directories(xpaceTests
@@ -64,8 +68,8 @@ target_include_directories(xpaceTests
 add_custom_command(
         TARGET xpaceTests POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/tests/xpace_603.log
-        ${CMAKE_CURRENT_BINARY_DIR}/xpace_603.log)
+        ${CMAKE_SOURCE_DIR}/tests/*.log
+        ${CMAKE_CURRENT_BINARY_DIR}/)
 
 # Small tools
 add_executable(xpaceStatistics)

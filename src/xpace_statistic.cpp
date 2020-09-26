@@ -10,13 +10,44 @@ namespace xpace
 XPaceStatistic::XPaceStatistic(const XpaceLogFile &file)
 	: file_(file), initialPose_(file.getInitialPosition())
 {
-	calculateStatistics();
+	if (file_.getNumberOfMotions() > 0) {
+		calculateStatistics();
+	} else {
+		throw std::runtime_error("No motions in logfile.");
+	}
 }
 
 void XPaceStatistic::calculateStatistics()
 {
 	auto motions = file_.getRelativeMotions();
 	auto length = file_.getNumberOfMotions();
+
+	// Net Motion
+	// Simply the last motion in the logfile
+	lastMotion_ = motions.back();
+
+	// RMS of all motions
+	rmsMotions_.resize(motions.size());
+	std::transform(motions.begin(), motions.end(), rmsMotions_.begin(),
+				[](Motion m) -> double { return m.euclideanDistance(); });
+
+	// Speed as the derivative of RMS
+	for (int i = 1; i < rmsMotions_.size(); ++i) {
+		speed_.emplace_back(rmsMotions_[i] - rmsMotions_[i-1]);
+	}
+
+	// Integrated speed
+	stats_[IntegratedSpeed] = std::accumulate(speed_.begin(), speed_.end(), 0.0);
+
+	// Partition weighted integrated speed
+	auto count = 0;
+	auto weightingFunctionSpeed = [&](double current, double val)
+	{
+		return current + val * (1.0 - 2.0 * std::abs(count++ / (speed_.size() - 1.0) - 0.5));
+	};
+	stats_[PartitionWeightedIntegratedSpeed] =
+		2.0 / (speed_.size() - 1.0) * std::accumulate(speed_.begin(), speed_.end(), 0.0, weightingFunctionSpeed);
+
 
 	// Each tracked motion is transformed into scanner coordinates which incorporates both the shift t and the
 	// rotational part q. Then we subtract the initial position from the resulting point to get the vector of how
@@ -25,7 +56,7 @@ void XPaceStatistic::calculateStatistics()
 	relativePositions_ = std::vector<Vector>();
 	for (const auto &m: motions) {
 		relativePositions_.push_back(
-			m.toAbsoluteCoordinates(initialPose_).t - initialPose_.t
+			m.applyToPose(initialPose_).t - initialPose_.t
 		);
 	}
 
@@ -38,29 +69,29 @@ void XPaceStatistic::calculateStatistics()
 	std::vector<double> distances(length);
 	std::transform(relativePositions_.begin(), relativePositions_.end(), distances.begin(), euclideanDistance);
 	auto mean = std::accumulate(distances.begin(), distances.end(), 0.0) / length;
-	positionStats_[MeanDistance] = mean;
+	stats_[MeanDistance] = mean;
 
 	auto minmax = std::minmax_element(distances.begin(), distances.end());
-	positionStats_[MinDistance] = *minmax.first;
-	positionStats_[MaxDistance] = *minmax.second;
+	stats_[MinDistance] = *minmax.first;
+	stats_[MaxDistance] = *minmax.second;
 
 	auto stdDevFunc = [=](double current, double val) -> double
 	{
 		return current + (val - mean) * (val - mean);
 	};
 	auto stdDev = std::sqrt(std::accumulate(distances.begin(), distances.end(), 0.0, stdDevFunc) / (length - 1.0));
-	positionStats_[StandardDeviation] = stdDev;
+	stats_[StandardDeviation] = stdDev;
 
 	// Kerrin's wish was to weight the contributions because k-space center is more important. The assumption is that
 	// the k-space center is scanned in the middle of the scan. Therefore, we make a simple ramp-up/down that peaks
 	// in the middle of the list of distances.
-	auto count = 0;
-	auto weightedEuclideanDistance = [&](double current, double val)
+	count = 0;
+	auto weightingFunctionDistances = [&](double current, double val)
 	{
 		return current + val * (1.0 - 2.0 * std::abs(count++ / (length - 1.0) - 0.5));
 	};
-	positionStats_[WeightedMeanDistance] =
-		2.0 / (length - 1.0) * std::accumulate(distances.begin(), distances.end(), 0.0, weightedEuclideanDistance);
+	stats_[WeightedMeanDistance] =
+		2.0 / (length - 1.0) * std::accumulate(distances.begin(), distances.end(), 0.0, weightingFunctionDistances);
 
 }
 

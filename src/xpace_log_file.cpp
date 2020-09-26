@@ -96,7 +96,7 @@ size_t XpaceLogFile::getNumberOfMotions() const
 void XpaceLogFile::calculateAbsolutePositions()
 {
 	for (auto p: motions_) {
-		positions_.emplace_back(p.toAbsoluteCoordinates(initialPose_));
+		positions_.emplace_back(p.applyToPose(initialPose_));
 	}
 }
 std::vector<Motion> XpaceLogFile::getAbsolutePositions() const

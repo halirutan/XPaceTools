@@ -6,6 +6,7 @@
 
 #include "xpace_log_file.h"
 #include "xpace_parser.h"
+#include "xpace_statistic.h"
 
 BOOST_AUTO_TEST_SUITE(XpaceLogFileCheckSuite)
 
@@ -81,7 +82,7 @@ BOOST_AUTO_TEST_CASE(ApplyTransform)
             }
     );
 
-    auto result = motion.toAbsoluteCoordinates(initialPosition);
+    auto result = motion.applyToPose(initialPosition);
     BOOST_CHECK_EQUAL(result.time, motion.time);
     BOOST_CHECK_EQUAL(result.frame, motion.frame);
     BOOST_CHECK_CLOSE(result.t.x, 0.115116732530409e2, 1e-05);
@@ -91,6 +92,15 @@ BOOST_AUTO_TEST_CASE(ApplyTransform)
     BOOST_CHECK_CLOSE(result.q.qi, 0.649208525325884, 1e-05);
     BOOST_CHECK_CLOSE(result.q.qj, 0.058222238832546, 1e-05);
     BOOST_CHECK_CLOSE(result.q.qk, -0.044899839315438, 1e-05);
+}
+
+BOOST_AUTO_TEST_CASE(XPaceStatistics)
+{
+	boost::filesystem::path full_path(boost::filesystem::current_path());
+	auto filePath = full_path / "xpace_603.log";
+	xpace::XpaceLogFile logFile(filePath.string());
+	xpace::XPaceStatistic stats(logFile);
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

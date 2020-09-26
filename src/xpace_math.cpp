@@ -1,5 +1,6 @@
 #include "xpace_math.h"
 #include <iostream>
+#include <cmath>
 
 namespace xpace
 {
@@ -49,10 +50,10 @@ Motion::Motion(const parser::motion_t &motion)
 	q = {motion.qr, motion.qi, motion.qj, motion.qk};
 }
 
-Motion Motion::toAbsoluteCoordinates(const InitialPosition &initialPosition) const
+Motion Motion::applyToPose(const InitialPosition &initialPose) const
 {
-	auto t0 = initialPosition.t;
-	auto q0 = initialPosition.q;
+	auto t0 = initialPose.t;
+	auto q0 = initialPose.q;
 	auto result = Motion(*this);
 	result.t = rotate(t0, q) + t;
 	result.q = q * q0;
@@ -66,6 +67,11 @@ std::ostream &operator<<(std::ostream &os, const Motion &m)
 	   << ") quat("
 	   << m.q.qr << ", " << m.q.qi << ", " << m.q.qj << ", " << m.q.qk << ")";
 	return os;
+}
+
+double Motion::euclideanDistance() const
+{
+	return std::sqrt(t.x*t.x + t.y*t.y + t.z*t.z + q.qi*q.qi + q.qj*q.qj + q.qk*q.qk);
 }
 
 Vector rotate(const Vector &v, const Quaternion &q)

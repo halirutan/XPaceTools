@@ -135,7 +135,9 @@ public:
      * @param initialPose
      * @return
      */
-    [[nodiscard]] Motion toAbsoluteCoordinates(const InitialPosition& initialPose) const;
+    [[nodiscard]] Motion applyToPose(const InitialPosition& initialPose) const;
+
+    [[nodiscard]] double euclideanDistance() const;
 	friend std::ostream& operator<<(std::ostream& os, const Motion& p);
 };
 

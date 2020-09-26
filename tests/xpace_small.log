@@ -1,0 +1,13 @@
+# libXPACE log file
+# the data are in scanner coordinates, see start log file for transform
+# pose data listed are relative to the initital pose
+@11.556 142.285 190.512 ( 0.648970242 0.0581997974 -0.0450109512 ) -0.757247959
+# frame time x_mm y_mm z_mm ( qx qy qz ) q0 status diff_distance diff_rotation accept_decision
+# the data are in scanner coordinates, see start log file for transform
+# status(+ ~ !)=(ok suspect error) decision(+ - *)=(accept reject off)
+# [n] - --.- ... marks a non-critical error (e.g. missing tracking data), n is the number of errors
+210520 318526901 -0.00567122 -0.00738533 -0.0038984 ( -1.66645475e-06 -7.29893509e-05 -3.55722732e-05 ) 1 + 0 0 *
+210522 318550525 0.00346855 -0.00191513 -0.00819889 ( -5.54840117e-05 -5.24815223e-05 3.62060091e-05 ) 1 + 0 0 *
+210524 318574150 -0.0183068 0.0019656 -0.011818 ( -1.33694539e-05 -5.37352171e-05 -0.000125519698 ) 1 + 0 0 *
+210526 318597774 -0.0260337 0.00404229 -0.0194471 ( 2.71593344e-05 -3.72312243e-05 -0.000104588747 ) 1 + 0 0 *
+210528 318621399 -0.0161151 -0.0031368 -0.026798 ( 9.89364617e-06 -2.33107603e-05 -6.34317912e-05 ) 1 + 0 0 *
