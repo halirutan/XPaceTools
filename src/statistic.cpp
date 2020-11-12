@@ -1,4 +1,4 @@
-#include "xpace_statistic.h"
+#include "statistic.hpp"
 #include <vector>
 #include <algorithm>
 #include <numeric>
@@ -12,15 +12,33 @@ XPaceStatistic::XPaceStatistic(const XpaceLogFile &file)
 {
 	if (file_.getNumberOfMotions() > 0) {
 		calculateStatistics();
-	} else {
+	}
+	else {
 		throw std::runtime_error("No motions in logfile.");
 	}
 }
 
 void XPaceStatistic::calculateStatistics()
 {
-	auto motions = file_.getRelativeMotions();
+	auto motions = file_.getMotions();
 	auto length = file_.getNumberOfMotions();
+
+	std::sort(motions.begin(), motions.end(), [](const Motion &a, const Motion &b)
+	{ return a.time < b.time; });
+
+	// Each tracked motion is transformed into scanner coordinates which incorporates both the shift t and the
+	// rotational part q. Then we subtract the initial position from the resulting point to get the vector of how
+	// much the tracked motion moves the mouthpiece from its initial position.
+	// This appears to me to be a more useful insight than looking purely at the motions.
+	relativeMotions = std::vector<Vector>();
+	for (const auto &m: motions) {
+		relativeMotions.push_back(
+			m.applyToPose(initialPose_).t - initialPose_.t
+		);
+	}
+
+
+
 
 	// Net Motion
 	// Simply the last motion in the logfile
@@ -29,11 +47,12 @@ void XPaceStatistic::calculateStatistics()
 	// RMS of all motions
 	rmsMotions_.resize(motions.size());
 	std::transform(motions.begin(), motions.end(), rmsMotions_.begin(),
-				[](Motion m) -> double { return m.euclideanDistance(); });
+				   [](Motion m) -> double
+				   { return m.euclideanDistance(); });
 
 	// Speed as the derivative of RMS
 	for (int i = 1; i < rmsMotions_.size(); ++i) {
-		speed_.emplace_back(rmsMotions_[i] - rmsMotions_[i-1]);
+		speed_.emplace_back(rmsMotions_[i] - rmsMotions_[i - 1]);
 	}
 
 	// Integrated speed
@@ -53,9 +72,9 @@ void XPaceStatistic::calculateStatistics()
 	// rotational part q. Then we subtract the initial position from the resulting point to get the vector of how
 	// much the tracked motion moves the mouthpiece from its initial position.
 	// This appears to me to be a more useful insight than looking purely at the motions.
-	relativePositions_ = std::vector<Vector>();
+	relativeMotions = std::vector<Vector>();
 	for (const auto &m: motions) {
-		relativePositions_.push_back(
+		relativeMotions.push_back(
 			m.applyToPose(initialPose_).t - initialPose_.t
 		);
 	}
@@ -67,7 +86,7 @@ void XPaceStatistic::calculateStatistics()
 	};
 
 	std::vector<double> distances(length);
-	std::transform(relativePositions_.begin(), relativePositions_.end(), distances.begin(), euclideanDistance);
+	std::transform(relativeMotions.begin(), relativeMotions.end(), distances.begin(), euclideanDistance);
 	auto mean = std::accumulate(distances.begin(), distances.end(), 0.0) / length;
 	stats_[MeanDistance] = mean;
 

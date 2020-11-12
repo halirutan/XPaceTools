@@ -8,8 +8,8 @@
 #include <map>
 #include <boost/format.hpp>
 
-#include "xpace_log_file.h"
-#include "xpace_math.h"
+#include "log_file.hpp"
+#include "math.hpp"
 
 namespace xpace
 {
@@ -51,8 +51,8 @@ public:
 
 	[[nodiscard]] std::vector<std::vector<double>> getTranslations() const
 	{
-		std::vector<std::vector<double>> result{relativePositions_.size()};
-		std::transform(relativePositions_.begin(), relativePositions_.end(), result.begin(),
+		std::vector<std::vector<double>> result{relativeMotions.size()};
+		std::transform(relativeMotions.begin(), relativeMotions.end(), result.begin(),
 					   [](const Vector &v)
 					   {
 						   std::vector<double> res{v.x, v.y, v.z};
@@ -65,7 +65,7 @@ public:
 	[[nodiscard]] std::vector<std::vector<double>> getRotations() const
 	{
 		std::vector<std::vector<double>> result{file_.getNumberOfMotions()};
-		auto motions = file_.getRelativeMotions();
+		auto motions = file_.getMotions();
 		std::transform(motions.begin(), motions.end(), result.begin(),
 					   [](const Motion &m)
 					   {
@@ -85,7 +85,7 @@ private:
 	// This will be calculated by taking the initial pose and apply a tracked motion to it (this incorporates the
 	// rotation *and* the translation. After that, we subtract the initial pose's shift again. Note that this is not
 	// equivalent to simply using the shift of the tracked motion!
-	std::vector<Vector> relativePositions_;
+	std::vector<Vector> relativeMotions;
 	Vector meanPosition_;
 	std::map<StatKey, double> stats_;
 	Motion lastMotion_;

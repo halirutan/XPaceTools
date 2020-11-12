@@ -1,5 +1,5 @@
 #pragma once
-#include "xpace_math.h"
+#include "math.hpp"
 
 #include <string>
 #include <regex>
@@ -36,7 +36,7 @@ public:
 	 * @see getInitialPosition()
 	 * @return Tracked relative motions
 	 */
-	[[nodiscard]] std::vector<Motion> getRelativeMotions() const;
+	[[nodiscard]] std::vector<Motion> getMotions() const;
 
 
 private:

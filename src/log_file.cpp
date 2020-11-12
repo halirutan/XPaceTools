@@ -1,5 +1,5 @@
-#include "xpace_log_file.h"
-#include "xpace_parser.h"
+#include "log_file.hpp"
+#include "parser.hpp"
 
 #include <stdexcept>
 #include <fstream>
@@ -103,7 +103,7 @@ std::vector<Motion> XpaceLogFile::getAbsolutePositions() const
 {
 	return positions_;
 }
-std::vector<Motion> XpaceLogFile::getRelativeMotions() const
+std::vector<Motion> XpaceLogFile::getMotions() const
 {
 	return motions_;
 }

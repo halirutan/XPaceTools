@@ -19,25 +19,23 @@ include(FetchContent)
 FetchContent_Declare(json
         GIT_REPOSITORY https://github.com/nlohmann/json.git
         GIT_TAG v3.9.1)
-
-FetchContent_GetProperties(json)
-if(NOT json_POPULATED)
-    FetchContent_Populate(json)
-    add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
+FetchContent_MakeAvailable(json)
 
 set(XPACE_HEADERS
-        ${CMAKE_SOURCE_DIR}/src/xpace_math.h
-        ${CMAKE_SOURCE_DIR}/src/xpace_log_file.h
-        ${CMAKE_SOURCE_DIR}/src/xpace_parser.h
-        ${CMAKE_SOURCE_DIR}/src/xpace_statistic.h
+        ${CMAKE_SOURCE_DIR}/src/math.hpp
+        ${CMAKE_SOURCE_DIR}/src/log_file.hpp
+        ${CMAKE_SOURCE_DIR}/src/parser.hpp
+        ${CMAKE_SOURCE_DIR}/src/statistic.hpp
+        ${CMAKE_SOURCE_DIR}/src/gaussian_filter.hpp
         )
 
 set(XPACE_SOURCES
-        ${CMAKE_SOURCE_DIR}/src/xpace_log_file.cpp
-        ${CMAKE_SOURCE_DIR}/src/xpace_parser.cpp
-        ${CMAKE_SOURCE_DIR}/src/xpace_math.cpp
-        ${CMAKE_SOURCE_DIR}/src/xpace_statistic.cpp)
+        ${CMAKE_SOURCE_DIR}/src/log_file.cpp
+        ${CMAKE_SOURCE_DIR}/src/parser.cpp
+        ${CMAKE_SOURCE_DIR}/src/math.cpp
+        ${CMAKE_SOURCE_DIR}/src/statistic.cpp
+        ${CMAKE_SOURCE_DIR}/src/gaussian_filter.cpp
+        )
 
 
 # XPace library for loading and working with log-files
@@ -58,16 +56,17 @@ target_sources(xpaceTests
         PRIVATE
         ${CMAKE_SOURCE_DIR}/tests/xpace_log_file_test.cpp)
 target_link_libraries(xpaceTests
-        PRIVATE
-        xpaceTools
+        PUBLIC
         $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
         nlohmann_json::nlohmann_json
         ${Boost_LIBRARIES}
+        xpaceTools
         )
 target_include_directories(xpaceTests
         PRIVATE
         ${CMAKE_SOURCE_DIR}/src
         ${Boost_INCLUDE_DIRS})
+
 
 add_custom_command(
         TARGET xpaceTests POST_BUILD

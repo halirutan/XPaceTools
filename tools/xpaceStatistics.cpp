@@ -7,8 +7,8 @@
 #include <filesystem>
 #include <fstream>
 #include "nlohmann/json.hpp"
-#include "xpace_log_file.h"
-#include "xpace_statistic.h"
+#include "log_file.hpp"
+#include "statistic.hpp"
 
 void printDescription()
 {
