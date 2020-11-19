@@ -10,6 +10,7 @@
 
 #include "log_file.hpp"
 #include "math.hpp"
+#include "gaussian_filter.hpp"
 
 namespace xpace
 {
@@ -44,15 +45,20 @@ public:
 		return stats_[key];
 	}
 
-	[[nodiscard]] const std::vector<double> &getSpeed() const
+	[[nodiscard]] std::vector<double> getSpeed(double filterSigma) const
 	{
-		return speed_;
+		if (filterSigma < 1.0 || filterSigma > 1000.0) {
+			return speed_;
+		}
+		GaussianFilter filter(filterSigma);
+		auto result = filter.filter(speed_);
+		return result;
 	}
 
 	[[nodiscard]] std::vector<std::vector<double>> getTranslations() const
 	{
-		std::vector<std::vector<double>> result{relativeMotions.size()};
-		std::transform(relativeMotions.begin(), relativeMotions.end(), result.begin(),
+		std::vector<std::vector<double>> result{positions_.size()};
+		std::transform(positions_.begin(), positions_.end(), result.begin(),
 					   [](const Vector &v)
 					   {
 						   std::vector<double> res{v.x, v.y, v.z};
@@ -62,18 +68,120 @@ public:
 		return result;
 	};
 
+	[[nodiscard]] std::vector<double> getTranslationXFiltered(double filterSigma) const
+	{
+		std::vector<double> result(positions_.size());
+		std::transform(positions_.begin(), positions_.end(), result.begin(),
+					   [](const Vector &v)
+					   {
+						   return v.x;
+					   }
+		);
+		if (filterSigma < 1.0 || filterSigma > 1000.0) {
+			return result;
+		}
+		GaussianFilter gauss(filterSigma);
+		return gauss.filter(result);
+	};
+
+	[[nodiscard]] std::vector<double> getTranslationYFiltered(double filterSigma) const
+	{
+		std::vector<double> result(positions_.size());
+		std::transform(positions_.begin(), positions_.end(), result.begin(),
+					   [](const Vector &v)
+					   {
+						   return v.y;
+					   }
+		);
+		if (filterSigma < 1.0 || filterSigma > 1000.0) {
+			return result;
+		}
+		GaussianFilter gauss(filterSigma);
+		return gauss.filter(result);
+	};
+
+	[[nodiscard]] std::vector<double> getTranslationZFiltered(double filterSigma) const
+	{
+		std::vector<double> result(positions_.size());
+		std::transform(positions_.begin(), positions_.end(), result.begin(),
+					   [](const Vector &v)
+					   {
+						   return v.z;
+					   }
+		);
+		if (filterSigma < 1.0 || filterSigma > 1000.0) {
+			return result;
+		}
+		GaussianFilter gauss(filterSigma);
+		return gauss.filter(result);
+	};
+
 	[[nodiscard]] std::vector<std::vector<double>> getRotations() const
 	{
-		std::vector<std::vector<double>> result{file_.getNumberOfMotions()};
-		auto motions = file_.getMotions();
-		std::transform(motions.begin(), motions.end(), result.begin(),
-					   [](const Motion &m)
+		std::vector<std::vector<double>> result{angles_.size()};
+		std::transform(angles_.begin(), angles_.end(), result.begin(),
+					   [](const EulerAngle &m)
 					   {
-							std::vector<double> res{m.q.qi, m.q.qj, m.q.qk};
+							std::vector<double> res{m.roll, m.pitch, m.yaw};
 							return res;
 					   }
 		);
 		return result;
+	}
+
+	[[nodiscard]] std::vector<double> getRotationRollFiltered(double filterSigma) const
+	{
+		std::vector<double> result(angles_.size());
+		std::transform(angles_.begin(), angles_.end(), result.begin(),
+					   [](const EulerAngle &angle)
+					   {
+						   return angle.roll;
+					   }
+		);
+		if (filterSigma < 1.0 || filterSigma > 1000.0) {
+			return result;
+		}
+		GaussianFilter gauss(filterSigma);
+		return gauss.filter(result);
+	};
+
+	[[nodiscard]] std::vector<double> getRotationPitchFiltered(double filterSigma) const
+	{
+		std::vector<double> result(angles_.size());
+		std::transform(angles_.begin(), angles_.end(), result.begin(),
+					   [](const EulerAngle &angle)
+					   {
+						   return angle.pitch;
+					   }
+		);
+		if (filterSigma < 1.0 || filterSigma > 1000.0) {
+			return result;
+		}
+		GaussianFilter gauss(filterSigma);
+		return gauss.filter(result);
+	};
+
+
+	[[nodiscard]] std::vector<double> getRotationYawFiltered(double filterSigma) const
+	{
+		std::vector<double> result(angles_.size());
+		std::transform(angles_.begin(), angles_.end(), result.begin(),
+					   [](const EulerAngle &angle)
+					   {
+						   return angle.yaw;
+					   }
+		);
+		if (filterSigma < 1.0 || filterSigma > 1000.0) {
+			return result;
+		}
+		GaussianFilter gauss(filterSigma);
+		return gauss.filter(result);
+	};
+
+
+	[[nodiscard]] std::vector<double> getTimes() const
+	{
+		return times_;
 	}
 
 	std::string getLogFilename();
@@ -81,17 +189,13 @@ public:
 private:
 	XpaceLogFile file_;
 	InitialPosition initialPose_;
-
-	// This will be calculated by taking the initial pose and apply a tracked motion to it (this incorporates the
-	// rotation *and* the translation. After that, we subtract the initial pose's shift again. Note that this is not
-	// equivalent to simply using the shift of the tracked motion!
-	std::vector<Vector> relativeMotions;
-	Vector meanPosition_;
+	std::vector<double> times_;
+	std::vector<Vector> positions_;
+	std::vector<EulerAngle> angles_;
+	std::vector<double> distances_;
 	std::map<StatKey, double> stats_;
 	Motion lastMotion_;
-	std::vector<double> rmsMotions_;
 	std::vector<double> speed_;
-
 	void calculateStatistics();
 };
 

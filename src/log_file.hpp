@@ -25,7 +25,7 @@ public:
 	/**
 	 * Returns the absolute position of the mouth-piece in scanner
 	 * coordinates for each tracked motion of the PMC system.
-	 * @return Absolute positions of tracked motions
+	 * @return Absolute positions_ of tracked motions
 	 */
 	[[nodiscard]] std::vector<Motion> getAbsolutePositions() const;
 

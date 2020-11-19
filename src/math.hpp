@@ -69,6 +69,10 @@ class EulerAngle
 public:
 	double roll, pitch, yaw;
 
+	EulerAngle()
+		: roll(0.0), pitch(0.0), yaw(0.0)
+	{}
+
 	EulerAngle(double r, double p, double y)
 		: roll(r), pitch(p), yaw(y)
 	{}
@@ -98,6 +102,11 @@ public:
 	EulerAngle operator-(const EulerAngle &e) const
 	{
 		return {e.roll - roll, e.pitch - pitch, e.yaw - yaw};
+	}
+
+	[[nodiscard]] double sqNorm() const
+	{
+		return roll * roll + pitch * pitch + yaw * yaw;
 	}
 };
 
@@ -138,6 +147,11 @@ public:
 	[[nodiscard]] Vector abs() const
 	{
 		return {std::abs(x), std::abs(y), std::abs(z)};
+	}
+
+	[[nodiscard]] double sqNorm() const
+	{
+		return x * x + y * y + z * z;
 	}
 
 };

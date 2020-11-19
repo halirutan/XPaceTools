@@ -21,6 +21,12 @@ FetchContent_Declare(json
         GIT_TAG v3.9.1)
 FetchContent_MakeAvailable(json)
 
+include(FetchContent)
+FetchContent_Declare(ctml
+        GIT_REPOSITORY https://github.com/tinfoilboy/CTML.git
+        GIT_TAG 1.1.1)
+FetchContent_MakeAvailable(ctml)
+
 set(XPACE_HEADERS
         ${CMAKE_SOURCE_DIR}/src/math.hpp
         ${CMAKE_SOURCE_DIR}/src/log_file.hpp
@@ -90,5 +96,6 @@ target_link_libraries(xpaceStatistics
         xpaceTools
         $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
         nlohmann_json::nlohmann_json
+        CTML
         ${Boost_LIBRARIES}
         )

@@ -1,0 +1,154 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
+  "config": {
+    "axis": {
+      "titleFontSize": 12,
+      "labelFontSize": 12,
+      "title": null
+    },
+    "legend": {
+      "titleFontSize": 16,
+      "labelFontSize": 16
+    },
+    "title": {
+      "fontSize": 18
+    },
+    "range": {
+      "category": [
+        "#AD2B4E",
+        "#2BAD3D",
+        "#2B49AD"
+      ]
+    }
+  },
+  "description": "A simple bar chart with embedded data.",
+  "vconcat": [
+    {
+      "title": "Movement",
+      "width": 768,
+      "mark": "line",
+      "encoding": {
+        "x": {
+          "field": "time",
+          "scale": {
+            "domain": {
+              "selection": "brush"
+            }
+          },
+          "type": "quantitative",
+          "axis": {
+            "tickCount": 10
+          }
+        },
+        "y": {
+          "field": "translationValue",
+          "type": "quantitative",
+          "title": "[mm]"
+        },
+        "color": {
+          "field": "translation",
+          "type": "nominal",
+          "title": "Legend"
+        }
+      }
+    },
+    {
+      "title": "Rotation",
+      "width": 768,
+      "mark": "line",
+      "encoding": {
+        "x": {
+          "field": "time",
+          "scale": {
+            "domain": {
+              "selection": "brush"
+            }
+          },
+          "type": "quantitative",
+          "axis": {
+            "tickCount": 10
+          }
+        },
+        "y": {
+          "field": "rotationValue",
+          "type": "quantitative",
+          "title": "[degree]"
+        },
+        "color": {
+          "field": "rotation",
+          "type": "nominal"
+        }
+      }
+    },
+    {
+      "title": "Absolute Speed",
+      "encoding": {
+        "x": {
+          "axis": {
+            "title": "Time [s]",
+            "tickCount": 10
+          },
+          "field": "time",
+          "type": "quantitative"
+        },
+        "y": {
+          "field": "speed",
+          "type": "quantitative",
+          "title": "[mm/s]"
+        },
+        "color": {
+          "value": "#AD2B4E"
+        }
+      },
+      "mark": "line",
+      "selection": {
+        "brush": {
+          "encodings": [
+            "x"
+          ],
+          "type": "interval"
+        }
+      },
+      "width": 768
+    }
+  ],
+  "data": {
+    "values": []
+  },
+  "transform": [
+    {
+      "flatten": [
+        "time",
+        "dx",
+        "dy",
+        "dz",
+        "roll",
+        "pitch",
+        "yaw",
+        "speed"
+      ]
+    },
+    {
+      "fold": [
+        "dx",
+        "dy",
+        "dz"
+      ],
+      "as": [
+        "translation",
+        "translationValue"
+      ]
+    },
+    {
+      "fold": [
+        "roll",
+        "pitch",
+        "yaw"
+      ],
+      "as": [
+        "rotation",
+        "rotationValue"
+      ]
+    }
+  ]
+}

@@ -4,6 +4,8 @@
 #include <numeric>
 #include <cmath>
 
+#include "gaussian_filter.hpp"
+
 namespace xpace
 {
 
@@ -23,40 +25,42 @@ void XPaceStatistic::calculateStatistics()
 	auto motions = file_.getMotions();
 	auto length = file_.getNumberOfMotions();
 
-	std::sort(motions.begin(), motions.end(), [](const Motion &a, const Motion &b)
-	{ return a.time < b.time; });
+	// Mean time difference between measurement points.
+	// Using this is not quite correct since the log-file will contain invalid measurements and the
+	// sequence of correct measures is in general not uniformly sampled.
+	// However, for a simple analysis like this, resampling everything seems overkill.
+	double meanDeltaT = (motions.end()->time - motions.begin()->time) / (1.0e-6 * length);
+	distances_.resize(length);
 
-	// Each tracked motion is transformed into scanner coordinates which incorporates both the shift t and the
-	// rotational part q. Then we subtract the initial position from the resulting point to get the vector of how
-	// much the tracked motion moves the mouthpiece from its initial position.
-	// This appears to me to be a more useful insight than looking purely at the motions.
-	relativeMotions = std::vector<Vector>();
-	for (const auto &m: motions) {
-		relativeMotions.push_back(
-			m.applyToPose(initialPose_).t - initialPose_.t
-		);
+	times_.resize(length);
+	positions_.resize(length);
+	angles_.resize(length);
+
+	Vector initPos(initialPose_.t);
+	EulerAngle initAngle(initialPose_.q);
+	auto absPositions = file_.getAbsolutePositions();
+	for (int i = 0; i < length; ++i) {
+		times_[i] = static_cast<double>(absPositions[i].time - absPositions[0].time) * 1.0e-6;
+		positions_[i] = absPositions[i].t - initPos;
+		angles_[i] = EulerAngle(absPositions[i].q) - initAngle;
+		distances_[i] = std::sqrt(positions_[i].sqNorm() + angles_[i].sqNorm());
 	}
 
-
-
-
-	// Net Motion
-	// Simply the last motion in the logfile
-	lastMotion_ = motions.back();
-
-	// RMS of all motions
-	rmsMotions_.resize(motions.size());
-	std::transform(motions.begin(), motions.end(), rmsMotions_.begin(),
-				   [](Motion m) -> double
-				   { return m.euclideanDistance(); });
-
-	// Speed as the derivative of RMS
-	for (int i = 1; i < rmsMotions_.size(); ++i) {
-		speed_.emplace_back(rmsMotions_[i] - rmsMotions_[i - 1]);
+	// Speed: Note that this is squared speed for later summation and square-rooting.
+	// Kerrin's wish was to weight the contributions because k-space center is more important. The assumption is that
+	// the k-space center is scanned in the middle of the scan. Therefore, we make a simple ramp-up/down that peaks
+	// in the middle of the list of distances_.
+	speed_.resize(length);
+	speed_[0] = 0.0;
+	for (int i = 1; i < length; ++i) {
+		auto t = times_[i] - times_[i - 1];
+		auto vecDiff = positions_[i] - positions_[i-1];
+		auto angleDiff = angles_[i] - angles_[i-1];
+		speed_[i] = (vecDiff.sqNorm() + angleDiff.sqNorm()) / (t * t);
 	}
 
 	// Integrated speed
-	stats_[IntegratedSpeed] = std::accumulate(speed_.begin(), speed_.end(), 0.0);
+	stats_[IntegratedSpeed] = std::sqrt(std::accumulate(speed_.begin(), speed_.end(), 0.0));
 
 	// Partition weighted integrated speed
 	auto count = 0;
@@ -68,49 +72,31 @@ void XPaceStatistic::calculateStatistics()
 		2.0 / (speed_.size() - 1.0) * std::accumulate(speed_.begin(), speed_.end(), 0.0, weightingFunctionSpeed);
 
 
-	// Each tracked motion is transformed into scanner coordinates which incorporates both the shift t and the
-	// rotational part q. Then we subtract the initial position from the resulting point to get the vector of how
-	// much the tracked motion moves the mouthpiece from its initial position.
-	// This appears to me to be a more useful insight than looking purely at the motions.
-	relativeMotions = std::vector<Vector>();
-	for (const auto &m: motions) {
-		relativeMotions.push_back(
-			m.applyToPose(initialPose_).t - initialPose_.t
-		);
-	}
+	// Net Motion
+	// Simply the last motion in the logfile
+	// Todo: Make this the real translation and rotations
+	lastMotion_ = motions.back();
 
-	// Statistics are calculated on the basis of the Euclidean distance of the deviation from the initial position.
-	auto euclideanDistance = [](Vector b) -> double
-	{
-		return std::sqrt(b.x * b.x + b.y * b.y + b.z * b.z);
-	};
-
-	std::vector<double> distances(length);
-	std::transform(relativeMotions.begin(), relativeMotions.end(), distances.begin(), euclideanDistance);
-	auto mean = std::accumulate(distances.begin(), distances.end(), 0.0) / length;
+	auto mean = std::accumulate(distances_.begin(), distances_.end(), 0.0) / length;
+	auto minMax = std::minmax_element(distances_.begin(), distances_.end());
 	stats_[MeanDistance] = mean;
-
-	auto minmax = std::minmax_element(distances.begin(), distances.end());
-	stats_[MinDistance] = *minmax.first;
-	stats_[MaxDistance] = *minmax.second;
+	stats_[MinDistance] = *minMax.first;
+	stats_[MaxDistance] = *minMax.second;
 
 	auto stdDevFunc = [=](double current, double val) -> double
 	{
 		return current + (val - mean) * (val - mean);
 	};
-	auto stdDev = std::sqrt(std::accumulate(distances.begin(), distances.end(), 0.0, stdDevFunc) / (length - 1.0));
+	auto stdDev = std::sqrt(std::accumulate(distances_.begin(), distances_.end(), 0.0, stdDevFunc) / (length - 1.0));
 	stats_[StandardDeviation] = stdDev;
 
-	// Kerrin's wish was to weight the contributions because k-space center is more important. The assumption is that
-	// the k-space center is scanned in the middle of the scan. Therefore, we make a simple ramp-up/down that peaks
-	// in the middle of the list of distances.
 	count = 0;
 	auto weightingFunctionDistances = [&](double current, double val)
 	{
 		return current + val * (1.0 - 2.0 * std::abs(count++ / (length - 1.0) - 0.5));
 	};
 	stats_[WeightedMeanDistance] =
-		2.0 / (length - 1.0) * std::accumulate(distances.begin(), distances.end(), 0.0, weightingFunctionDistances);
+		2.0 / (length - 1.0) * std::accumulate(distances_.begin(), distances_.end(), 0.0, weightingFunctionDistances);
 
 }
 
