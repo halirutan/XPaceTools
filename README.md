@@ -41,10 +41,12 @@ xpace_603.html
 
 This software is written in C++17, needs CMake version >= 3.15 and relies on the [Boost library](https://www.boost.org/) 
 version >= 1.71.
-The goal is to provide some simple tools like calculating statistics on motion tracking and to be the base for
-visualization tools.
+It relies on two other (header-only) libraries that are automatically loaded into the CMake project:
 
-## Compilation
+- The [JSON library of Niels Lohmann](https://github.com/nlohmann/json)
+- The [CTML library of Maxwell Flynn](https://github.com/tinfoilboy/CTML), a C++ HTML document constructor
+
+### Compilation
 
 Clone the repository, make sure you have cmake version 3.15 or later and either open it in CLion. On the commandline,
 follow this:
