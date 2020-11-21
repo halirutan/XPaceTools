@@ -28,19 +28,19 @@ FetchContent_Declare(ctml
 FetchContent_MakeAvailable(ctml)
 
 set(XPACE_HEADERS
-        ${CMAKE_SOURCE_DIR}/src/math.hpp
+        ${CMAKE_SOURCE_DIR}/src/gaussian_filter.hpp
         ${CMAKE_SOURCE_DIR}/src/log_file.hpp
+        ${CMAKE_SOURCE_DIR}/src/math.hpp
         ${CMAKE_SOURCE_DIR}/src/parser.hpp
         ${CMAKE_SOURCE_DIR}/src/statistic.hpp
-        ${CMAKE_SOURCE_DIR}/src/gaussian_filter.hpp
         )
 
 set(XPACE_SOURCES
-        ${CMAKE_SOURCE_DIR}/src/log_file.cpp
-        ${CMAKE_SOURCE_DIR}/src/parser.cpp
-        ${CMAKE_SOURCE_DIR}/src/math.cpp
-        ${CMAKE_SOURCE_DIR}/src/statistic.cpp
         ${CMAKE_SOURCE_DIR}/src/gaussian_filter.cpp
+        ${CMAKE_SOURCE_DIR}/src/log_file.cpp
+        ${CMAKE_SOURCE_DIR}/src/math.cpp
+        ${CMAKE_SOURCE_DIR}/src/parser.cpp
+        ${CMAKE_SOURCE_DIR}/src/statistic.cpp
         )
 
 

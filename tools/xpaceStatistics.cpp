@@ -98,10 +98,11 @@ std::string createHTMLTemplate(const std::string &filename, const nlohmann::json
 	using namespace CTML;
 	Document doc;
 	doc.AppendNodeToHead(Node("title", filename));
-	doc.AppendNodeToHead(Node("link")
-							 .SetAttribute("rel", "stylesheet")
-							 .SetAttribute("href",
-										   "https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css"));
+	doc.AppendNodeToHead(
+		Node("link")
+			.SetAttribute("rel", "stylesheet")
+			.SetAttribute("href", "https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css")
+	);
 	doc.AppendNodeToHead(Node("script").SetAttribute("src", "https://cdn.jsdelivr.net/npm/vega@5.17.0"));
 	doc.AppendNodeToHead(Node("script").SetAttribute("src", "https://cdn.jsdelivr.net/npm/vega-lite@4.17.0"));
 	doc.AppendNodeToHead(Node("script").SetAttribute("src", "https://cdn.jsdelivr.net/npm/vega-embed@6.12.2"));
@@ -109,14 +110,16 @@ std::string createHTMLTemplate(const std::string &filename, const nlohmann::json
 
 	doc.AppendNodeToBody(Node("header.sticky").AppendChild(Node("h2", filename)));
 
-	auto statsTable = Node("table.hoverable")
-		.AppendChild(Node("thead").AppendChild(Node("tr").AppendChild(Node("th", "Measure")).AppendChild(Node("th", "Value"))));
+	auto statsTable = Node("table.hoverable").AppendChild(
+		Node("thead").AppendChild(Node("tr").AppendChild(Node("th", "Measure")).AppendChild(Node("th", "Value")))
+	);
 
 	auto tbody = Node("tbody");
 	for (const auto &value: stats.items()) {
-		tbody.AppendChild(Node("tr")
-							  .AppendChild(Node("td", value.key()))
-							  .AppendChild(Node("td", value.value().dump()))
+		tbody.AppendChild(
+			Node("tr")
+				.AppendChild(Node("td", value.key()))
+				.AppendChild(Node("td", value.value().dump()))
 		);
 	}
 
@@ -135,8 +138,8 @@ std::string createHTMLTemplate(const std::string &filename, const nlohmann::json
 			.AppendChild(Node("div.row")
 							 .AppendChild(
 								 Node("main").SetAttribute("class", "col-sm-12 col-md-8 col-lg-9")
-								 .AppendChild(statsCard)
-								 .AppendChild(graphCard)))
+									 .AppendChild(statsCard)
+									 .AppendChild(graphCard)))
 	);
 
 	nlohmann::json vegaConfig = R"(
