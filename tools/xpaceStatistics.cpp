@@ -357,6 +357,9 @@ int main(int argc, char **argv)
 					motions[f]["raw"] = createJSONMotions(statistic);
 					motions[f]["filtered"] = createJSONMotionsForViz(statistic);
 				}
+				catch (std::runtime_error &e) {
+					std::cerr << "Error: " << e.what() << std::endl;
+				}
 				catch (...) {
 					std::cerr << "Could not open or read file " << path(f);
 					continue;
@@ -408,9 +411,6 @@ int main(int argc, char **argv)
 	catch (po::unknown_option &e) {
 		std::cerr << programName << ": illegal option " << e.get_option_name() << std::endl;
 		return ERROR;
-	}
-	catch (std::runtime_error &e) {
-		std::cerr << "Error: " << e.what() << std::endl;
 	}
 	return SUCCESS;
 }

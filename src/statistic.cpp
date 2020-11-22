@@ -1,5 +1,6 @@
 #include "statistic.hpp"
 #include <vector>
+#include <sstream>
 #include <algorithm>
 #include <numeric>
 #include <cmath>
@@ -24,6 +25,12 @@ void XPaceStatistic::calculateStatistics()
 {
 	auto motions = file_.getMotions();
 	auto length = file_.getNumberOfMotions();
+
+	if (length < 5) {
+		std::stringstream err;
+		err << "Only " << length << " motion-measures available. That's certainly not enough to calculate sensible statistics.";
+		throw std::runtime_error(err.str());
+	}
 
 	long double timeDeltaMean = static_cast<long double>(motions.back().time - motions.front().time) / (1.0e6L * (length-1.0L));
 	distances_.resize(length);
