@@ -23,13 +23,15 @@ nlohmann::json createJSONStatistics(xpace::XPaceStatistic &statistic)
 {
 	using Key = xpace::XPaceStatistic::StatKey;
 	nlohmann::json o;
-	o["Mean Euclidean Distance"] = statistic[Key::MeanDistance];
-	o["Min Euclidean Distance"] = statistic[Key::MinDistance];
-	o["Max Euclidean Distance"] = statistic[Key::MaxDistance];
-	o["Euclidean Distance StdDev"] = statistic[Key::StandardDeviation];
-	o["Weighted Mean Euclidean Distance"] = statistic[Key::WeightedMeanDistance];
-	o["Integrated Speed"] = statistic[Key::IntegratedSpeed];
-	o["Weighted Integrated Speed"] = statistic[Key::PartitionWeightedIntegratedSpeed];
+	o["Distance Mean"] = statistic[Key::DistanceMean];
+	o["Distance Min"] = statistic[Key::DistanceMin];
+	o["Distance Max"] = statistic[Key::DistanceMax];
+	o["Distance StdDev"] = statistic[Key::DistanceStandardDeviation];
+	o["Distance Mean Weighted"] = statistic[Key::DistanceWeightedMean];
+	o["Speed Integral"] = statistic[Key::SpeedIntegral];
+	o["Speed Integral Weighted"] = statistic[Key::SpeedWeightedIntegral];
+	o["Time Delta Mean"] = statistic[Key::TimeDeltaMean];
+	o["Time Delta StdDev"] = statistic[Key::TimeDeltaStandardDeviation];
 	return o;
 }
 
@@ -41,18 +43,10 @@ nlohmann::json createJSONMotions(const xpace::XPaceStatistic &statistic)
 	auto rots = statistic.getRotations();
 	const auto &speed = statistic.getSpeed(0.0);
 
-	for (int i = 0; i < times.size(); ++i) {
-		nlohmann::json o;
-		o["time"] = times[i];
-		o["x"] = trans[i][0];
-		o["y"] = trans[i][1];
-		o["z"] = trans[i][2];
-		o["roll"] = rots[i][0];
-		o["pitch"] = rots[i][1];
-		o["yaw"] = rots[i][2];
-		o["speed"] = speed[i];
-		result.emplace_back(o);
-	}
+	result["Time"] = times;
+	result["Translations"] = trans;
+	result["EulerAngles"] = rots;
+	result["Speed"] = speed;
 	return result;
 }
 

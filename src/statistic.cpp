@@ -25,11 +25,7 @@ void XPaceStatistic::calculateStatistics()
 	auto motions = file_.getMotions();
 	auto length = file_.getNumberOfMotions();
 
-	// Mean time difference between measurement points.
-	// Using this is not quite correct since the log-file will contain invalid measurements and the
-	// sequence of correct measures is in general not uniformly sampled.
-	// However, for a simple analysis like this, resampling everything seems overkill.
-	double meanDeltaT = (motions.end()->time - motions.begin()->time) / (1.0e-6 * length);
+	long double timeDeltaMean = static_cast<long double>(motions.back().time - motions.front().time) / (1.0e6L * (length-1.0L));
 	distances_.resize(length);
 
 	times_.resize(length);
@@ -46,29 +42,34 @@ void XPaceStatistic::calculateStatistics()
 		distances_[i] = std::sqrt(positions_[i].sqNorm() + angles_[i].sqNorm());
 	}
 
-	// Speed: Note that this is squared speed for later summation and square-rooting.
-	// Kerrin's wish was to weight the contributions because k-space center is more important. The assumption is that
-	// the k-space center is scanned in the middle of the scan. Therefore, we make a simple ramp-up/down that peaks
-	// in the middle of the list of distances_.
 	speed_.resize(length);
 	speed_[0] = 0.0;
+	long double timeDeltaStdDev = 0.0;
 	for (int i = 1; i < length; ++i) {
 		auto t = times_[i] - times_[i - 1];
 		auto vecDiff = positions_[i] - positions_[i-1];
 		auto angleDiff = angles_[i] - angles_[i-1];
-		speed_[i] = (vecDiff.sqNorm() + angleDiff.sqNorm()) / (t * t);
+		speed_[i] = std::sqrt(vecDiff.sqNorm() + angleDiff.sqNorm()) / t;
+		timeDeltaStdDev += (t - timeDeltaMean) * (t - timeDeltaMean);
 	}
 
+	// We needed long double to be sure the micro-seconds time values don't overflow.
+	// It should be save to cast the mean and the stddev back to double here.
+	stats_[TimeDeltaMean] = static_cast<double>(timeDeltaMean);
+	stats_[TimeDeltaStandardDeviation] = std::sqrt(static_cast<double>(timeDeltaStdDev)/(times_.size()-1.0));
 	// Integrated speed
-	stats_[IntegratedSpeed] = std::sqrt(std::accumulate(speed_.begin(), speed_.end(), 0.0));
+	stats_[SpeedIntegral] = std::accumulate(speed_.begin(), speed_.end(), 0.0);
 
 	// Partition weighted integrated speed
+	// Kerrin's wish was to weight the contributions because k-space center is more important. The assumption is that
+	// the k-space center is scanned in the middle of the scan. Therefore, we make a simple ramp-up/down that peaks
+	// in the middle.
 	auto count = 0;
 	auto weightingFunctionSpeed = [&](double current, double val)
 	{
 		return current + val * (1.0 - 2.0 * std::abs(count++ / (speed_.size() - 1.0) - 0.5));
 	};
-	stats_[PartitionWeightedIntegratedSpeed] =
+	stats_[SpeedWeightedIntegral] =
 		2.0 / (speed_.size() - 1.0) * std::accumulate(speed_.begin(), speed_.end(), 0.0, weightingFunctionSpeed);
 
 
@@ -79,23 +80,23 @@ void XPaceStatistic::calculateStatistics()
 
 	auto mean = std::accumulate(distances_.begin(), distances_.end(), 0.0) / length;
 	auto minMax = std::minmax_element(distances_.begin(), distances_.end());
-	stats_[MeanDistance] = mean;
-	stats_[MinDistance] = *minMax.first;
-	stats_[MaxDistance] = *minMax.second;
+	stats_[DistanceMean] = mean;
+	stats_[DistanceMin] = *minMax.first;
+	stats_[DistanceMax] = *minMax.second;
 
 	auto stdDevFunc = [=](double current, double val) -> double
 	{
 		return current + (val - mean) * (val - mean);
 	};
 	auto stdDev = std::sqrt(std::accumulate(distances_.begin(), distances_.end(), 0.0, stdDevFunc) / (length - 1.0));
-	stats_[StandardDeviation] = stdDev;
+	stats_[DistanceStandardDeviation] = stdDev;
 
 	count = 0;
 	auto weightingFunctionDistances = [&](double current, double val)
 	{
 		return current + val * (1.0 - 2.0 * std::abs(count++ / (length - 1.0) - 0.5));
 	};
-	stats_[WeightedMeanDistance] =
+	stats_[DistanceWeightedMean] =
 		2.0 / (length - 1.0) * std::accumulate(distances_.begin(), distances_.end(), 0.0, weightingFunctionDistances);
 
 }

@@ -25,8 +25,8 @@ struct initial_pose_t {
  * Internal struct that the parser can directly assign when reading a motion line
  */
 struct motion_t {
-  unsigned int frame = 0;
-  unsigned int time = 0;
+  ulong frame = 0;
+  ulong time = 0;
   double x = 0.0;
   double y = 0.0;
   double z = 0.0;

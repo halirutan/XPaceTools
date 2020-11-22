@@ -182,8 +182,8 @@ class Motion
 public:
 	Vector t;
 	Quaternion q;
-	unsigned int time;
-	unsigned int frame;
+	ulong time;
+	ulong frame;
 	Motion();
 	explicit Motion(const parser::motion_t &motion);
 	Motion(const Motion &) = default;

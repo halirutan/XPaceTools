@@ -24,13 +24,15 @@ public:
 	{
 		NetMotion,
 		NetMotionEuclideanDistance,
-		MeanDistance,
-		MinDistance,
-		MaxDistance,
-		StandardDeviation,
-		WeightedMeanDistance,
-		IntegratedSpeed,
-		PartitionWeightedIntegratedSpeed
+		DistanceMean,
+		DistanceMin,
+		DistanceMax,
+		DistanceStandardDeviation,
+		DistanceWeightedMean,
+		SpeedIntegral,
+		SpeedWeightedIntegral,
+		TimeDeltaMean,
+		TimeDeltaStandardDeviation
 	};
 
 	/*

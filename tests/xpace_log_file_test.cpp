@@ -99,13 +99,28 @@ BOOST_AUTO_TEST_CASE(ApplyTransform)
 	BOOST_CHECK_CLOSE(result.q.qk, -0.044899839315438, 1e-05);
 }
 
+/**
+ * Testcase against a constructed example that has a defined sampling rate and
+ * movement in x-direction.
+ */
 BOOST_AUTO_TEST_CASE(XPaceStatistics)
 {
+	constexpr double eps = 1e-05;
+	using Key = xpace::XPaceStatistic::StatKey;
 	boost::filesystem::path full_path(boost::filesystem::current_path());
-	auto filePath = full_path / "xpace_603.log";
+	auto filePath = full_path / "xpace_x_movement.log";
 	xpace::XpaceLogFile logFile(filePath.string());
 	xpace::XPaceStatistic stats(logFile);
-
+	BOOST_CHECK_SMALL(stats[Key::TimeDeltaMean] -  0.02, eps);
+	BOOST_CHECK_SMALL(stats[Key::TimeDeltaStandardDeviation], eps);
+	BOOST_CHECK_SMALL(stats[Key::DistanceMean] - 0.5, eps);
+	BOOST_CHECK_SMALL(stats[Key::DistanceWeightedMean] - 0.5, eps);
+	BOOST_CHECK_SMALL(stats[Key::DistanceStandardDeviation] - 0.289108, eps);
+	BOOST_CHECK_SMALL(stats[Key::DistanceMax] - 1.0, eps);
+	BOOST_CHECK_SMALL(stats[Key::DistanceMin], eps);
+	BOOST_CHECK_SMALL(stats[Key::SpeedIntegral] - 50.0, eps);
+	BOOST_CHECK_SMALL(stats[Key::SpeedWeightedIntegral] - 0.05, eps);
+	BOOST_CHECK_SMALL(stats[Key::DistanceMin], eps);
 }
 
 BOOST_AUTO_TEST_CASE(LowpassFilter)
