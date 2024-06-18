@@ -1,13 +1,13 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.22)
 project(XPaceTools
-        VERSION 1.0
+        VERSION 1.1
         DESCRIPTION "Parsing library for XPace log-files"
         HOMEPAGE_URL "https://github.com/halirutan/XPaceTools"
         LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(BOOST_VERSION 1.71)
+set(BOOST_VERSION 1.85)
 set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME     ON)
@@ -18,13 +18,12 @@ find_package(Boost ${BOOST_VERSION}
 include(FetchContent)
 FetchContent_Declare(json
         GIT_REPOSITORY https://github.com/nlohmann/json.git
-        GIT_TAG v3.9.1)
+        GIT_TAG v3.11.3)
 FetchContent_MakeAvailable(json)
 
-include(FetchContent)
 FetchContent_Declare(ctml
         GIT_REPOSITORY https://github.com/tinfoilboy/CTML.git
-        GIT_TAG 1.1.1)
+        GIT_TAG 2.0.0)
 FetchContent_MakeAvailable(ctml)
 
 set(XPACE_HEADERS

@@ -14,7 +14,7 @@ This software contains
 ## Usage
 
 The main goal was to provide a program `xpaceStatistics` that runs without any (serious) dependencies on most machines
-and calculates a statistic of XPace logfiles. In genereral, the usage is
+and calculates a statistic of XPace logfiles. In general, the usage is
 
 ```shell
 xpaceStatistics xpace_001.log
@@ -47,10 +47,10 @@ observations, the following measures are calculated:
 - Euclidean distance from the initial position. As described in [this article][1], the Euler-angles are taken into
   account into this distance. For the list of distances, the mean, min, max, and standard-deviation are calculated.
 - Using the motion, a "speed" measure is defined that also takes translations and rotations into account. For the speed,
-  the sum (integral) is given. When variance measures turn out to be of value, they will be implemented in future.
-- For distance and speed measures, there is a "weighted" variant available that puts more weight on the center of the
+  the sum (integral) is given. When variance measures turn out to be of value, they will be implemented in the future.
+- For distance and speed measures, there is a "weighted" variant available that puts more weight in the center of the
   measurement because this is the region where the center of the k-space is captured.
-- Sometimes frames are skipped due to invalid measurements. That also might be an important information. Therefore, the
+- Sometimes frames are skipped due to invalid measurements. That also might be important information. Therefore, the
   mean time-difference and its standard-deviation is also included.
   
 These measures are shown in the HTML file and are also available in a dedicated `xxx_stats.json`:
@@ -76,11 +76,29 @@ in a separate `xxx_motion.json` file that can be investigated with tools like Ma
 
 ## Development
 
-This software is written in C++17, needs CMake version >= 3.15 and relies on the [Boost library](https://www.boost.org/)
-version >= 1.71. It relies on two other (header-only) libraries that are automatically loaded into the CMake project:
+This software is written in C++17, needs CMake version >= 3.15 and relies on the [Boost library](https://www.boost.org/) and
+two other (header-only) libraries:
 
 - The [JSON library of Niels Lohmann](https://github.com/nlohmann/json)
 - The [CTML library of Maxwell Flynn](https://github.com/tinfoilboy/CTML), a C++ HTML document constructor
+
+The two libraries above are loaded automatically from their respective GitHub repository during the CMake configuration
+step.
+
+### Building Boost Locally
+
+Download [Boost version 1.85](https://www.boost.org/) and build it by first calling `./bootstrap.sh` and then
+
+```shell
+./b2 --prefix=/your/boost/install/path \
+  --build-type=complete \
+  --layout=versioned \
+  variant=release \
+  link=static \
+  threading=multi \
+  runtime-link=static \
+  install
+```
 
 ### Compilation
 
@@ -92,6 +110,6 @@ cd XPaceTools
 mkdir build
 cd build
 
-cmake -DBOOST_ROOT=/your/path/to/boost_1_71_0 ..
+cmake -DBOOST_ROOT="/your/boost/install/path" ..
 make
 ```
